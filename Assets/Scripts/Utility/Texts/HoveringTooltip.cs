@@ -716,7 +716,7 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.ManaBarrier:
                 return "Up to 50% of damage taken by unit instead spends mana, this trait loses 1% effectivity for every 1% missing mana percentage.";
             case Traits.Unflinching:
-                return "Unit's BladeDance, Tenacity, and Focus stack loss is reduced by if stacks are below 10% current HP.";
+                return "Unit's BladeDance, Tenacity, and Focus stack loss is reduced if the stack's total is below 10% of the unit's current HP.";
             case Traits.Annihilation:
                 return "Every time digestion progresses, this unit digests one level from each prey inside them, gaining its experience value. If a unit hits level 0 this way, it dies if it was still alive and cannot be revived.\n(Cheat Trait)";
             case Traits.WeaponChanneler:
