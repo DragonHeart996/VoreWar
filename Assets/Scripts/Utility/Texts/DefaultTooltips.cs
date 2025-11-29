@@ -611,7 +611,7 @@ Note, due to the way this is set up, you have to restart the game client for cha
             case 240:
                 return "Hides the vulva / slits on female vipers. This causes their nethers to look similar to males without their dick out";
             case 241:
-                return "When enabled, cumstains (UB/CV)/milk puddles (BV) are created on the ground when a pred finishes absorbing prey.";
+                return "When enabled, cumstains (UB/CV)/milk puddles (BV)/urine puddles (Bladder Vore)/ honey puddles are created on the ground when a pred finishes absorbing prey.";
             case 242:
                 return "When enabled, burps will occur after digestion, rather than after absorption.";
             case 243:
@@ -832,6 +832,11 @@ Does not retroactively affect already created units.";
                 return "Enables wandering clusters of Iliijiith.";
             case 347:
                 return "Determines how much EXP a single villager provides when devoured by an occupying army.";
+            case 348:
+                return @"Enable bladder vore
+
+The weights affect how often the AI will choose one in comparison to the others.  
+(I.e. if unbirth is high, and everything else is low, unbirth will be a high % of what they choose, provided that the race is capable of it.)";
             default:
                 return "";
         }

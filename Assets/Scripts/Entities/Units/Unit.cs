@@ -454,6 +454,7 @@ public class Unit
     internal bool CanBreastVore => Config.BreastVore && HasBreasts;
     internal bool CanAnalVore => Config.AnalVore;
     internal bool CanTailVore => Config.TailVore;
+    internal bool CanBladderVore => Config.BladderVore && (HasVagina || HasDick);
 
     public bool CanVore(PreyLocation location)
     {
@@ -469,6 +470,8 @@ public class Unit
                 return CanAnalVore;
             case PreyLocation.tail:
                 return CanTailVore;
+            case PreyLocation.bladder:
+                return CanBladderVore;
             default:
                 return true;
         }

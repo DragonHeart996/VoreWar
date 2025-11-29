@@ -19,6 +19,7 @@ public class Actor_Unit
         BreastVore,
         AnalVore,
         Unbirth,
+        BladderVore,
         FrogPouncing,
         VoreSuccess,
         VoreFail,
@@ -503,6 +504,9 @@ public class Actor_Unit
             case PreyLocation.anal:
                 Mode = DisplayMode.AnalVore;
                 break;
+            case PreyLocation.bladder:
+                Mode = DisplayMode.BladderVore;
+                break;
         }
         animationUpdateTime = 1.5F;
     }
@@ -788,7 +792,7 @@ public class Actor_Unit
     {
         if (Mode == DisplayMode.Attacking)
             return 1;
-        if (Mode == DisplayMode.OralVore || Mode == DisplayMode.BreastVore || Mode == DisplayMode.CockVore || Mode == DisplayMode.Unbirth || Mode == DisplayMode.AnalVore)
+        if (Mode == DisplayMode.OralVore || Mode == DisplayMode.BreastVore || Mode == DisplayMode.CockVore || Mode == DisplayMode.Unbirth || Mode == DisplayMode.AnalVore || Mode == DisplayMode.BladderVore)
             return 2;
         return 0;
     }
@@ -801,15 +805,16 @@ public class Actor_Unit
     /// <summary>
     /// This one Covers all forms of consuming
     /// </summary>
-    public bool IsEating => IsOralVoring || IsCockVoring || IsBreastVoring || IsUnbirthing || IsTailVoring || IsAnalVoring;
+    public bool IsEating => IsOralVoring || IsCockVoring || IsBreastVoring || IsUnbirthing || IsTailVoring || IsAnalVoring || IsBladderVoring;
     public bool IsOralVoring => Mode == DisplayMode.OralVore;
     public bool IsOralVoringHalfOver => Mode == DisplayMode.OralVore && animationUpdateTime < .75f;
 
-    public bool IsCockVoring => Mode == DisplayMode.CockVore;
+    public bool IsCockVoring => Mode == DisplayMode.CockVore || IsBladderVoring;
     public bool IsBreastVoring => Mode == DisplayMode.BreastVore;
-    public bool IsUnbirthing => Mode == DisplayMode.Unbirth;
+    public bool IsUnbirthing => Mode == DisplayMode.Unbirth || IsBladderVoring;
     public bool IsTailVoring => Mode == DisplayMode.TailVore;
     public bool IsAnalVoring => Mode == DisplayMode.AnalVore;
+    public bool IsBladderVoring => Mode == DisplayMode.BladderVore;
     public bool IsPouncingFrog => Mode == DisplayMode.FrogPouncing;
     public bool HasJustVored => Mode == DisplayMode.VoreSuccess;
     public bool HasJustFailedToVore => Mode == DisplayMode.VoreFail;
@@ -1398,6 +1403,9 @@ public class Actor_Unit
                     case SpecialAction.AnalVore:
                         PredatorComponent.AnalVore(target);
                         break;
+                    case SpecialAction.BladderVore:
+                        PredatorComponent.BladderVore(target);
+                        break;
                     default:
                         PredatorComponent.Devour(target);
                         break;
@@ -1595,6 +1603,9 @@ public class Actor_Unit
                     break;
                 case SpecialAction.AnalVore:
                     succeded_attempt = PredatorComponent.AnalVore(target);
+                    break;
+                case SpecialAction.BladderVore:
+                    succeded_attempt = PredatorComponent.BladderVore(target);
                     break;
                 default:
                     succeded_attempt = PredatorComponent.Devour(target);
@@ -2413,7 +2424,7 @@ public class Actor_Unit
         {
             possible.Add(1);
         }
-        if (target.PredatorComponent.WombFullness > 0 || target.PredatorComponent.CombinedStomachFullness > 0)
+        if (target.PredatorComponent.CombinedStomachFullness > 0 || target.PredatorComponent.WombFullness > 0 || target.PredatorComponent.BladderFullness > 0)
         {
             possible.Add(0);
         }
@@ -2438,10 +2449,25 @@ public class Actor_Unit
         type = possible[index];
         switch (type)
         {
-            case 0:
-                prey = target.PredatorComponent.GetDirectPrey().FirstOrDefault(p => p.Location.Equals(PreyLocation.stomach) || p.Location.Equals(PreyLocation.stomach2) || p.Location.Equals(PreyLocation.anal) || p.Location.Equals(PreyLocation.womb));
-                if (prey == null) break;
-                TacticalUtilities.Log.RegisterBellyRub(Unit, target.Unit, prey.Unit, 1f);
+            case 0:// Split womb and stomachs (and added bladder) from being grouped up as of post version 44D to fix log issues
+                prey = target.PredatorComponent.GetDirectPrey().FirstOrDefault(p => p.Location.Equals(PreyLocation.bladder));
+                if (prey != null)
+                {
+                    TacticalUtilities.Log.RegisterBellyRub(Unit, target.Unit, prey.Unit, PreyLocation.bladder, 1f);
+                    break;
+                }
+                prey = target.PredatorComponent.GetDirectPrey().FirstOrDefault(p => p.Location.Equals(PreyLocation.womb));
+                if (prey != null)
+                {
+                    TacticalUtilities.Log.RegisterBellyRub(Unit, target.Unit, prey.Unit, PreyLocation.womb, 1f);
+                    break;
+                }
+                prey = target.PredatorComponent.GetDirectPrey().FirstOrDefault(p => p.Location.Equals(PreyLocation.stomach) || p.Location.Equals(PreyLocation.stomach2) || p.Location.Equals(PreyLocation.anal));
+                if (prey != null) 
+                {
+                    TacticalUtilities.Log.RegisterBellyRub(Unit, target.Unit, prey.Unit, PreyLocation.stomach, 1f);
+                    break;
+                }
                 break;
             case 1:
                 prey = target.PredatorComponent.GetDirectPrey().FirstOrDefault(p => p.Location.Equals(PreyLocation.breasts) || p.Location.Equals(PreyLocation.leftBreast) || p.Location.Equals(PreyLocation.rightBreast));
