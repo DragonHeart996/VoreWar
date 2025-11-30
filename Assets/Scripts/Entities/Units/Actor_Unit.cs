@@ -1841,6 +1841,8 @@ public class Actor_Unit
                 int meleeAttacks = Unit.TraitBoosts.MeleeAttacks;
                 if (Unit.HasTrait(Traits.LightFrame) && PredatorComponent?.PreyCount == 0)
                     meleeAttacks++;
+                if (Unit.HasTrait(Traits.WildFury) && Unit.GetBestMelee() == State.World.ItemRepository.Claws)
+                    meleeAttacks++;
                 if (meleeAttacks > 1)
                 {
                     int movementFraction = 1 + MaxMovement() / meleeAttacks;
