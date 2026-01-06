@@ -148,21 +148,25 @@ public class HoveringTooltip : MonoBehaviour
         {
             if (unit == null) //Protector for the add a race screen
                 return "";
-            var racePar = RaceParameters.GetTraitData(unit);
-            var bodySize = State.RaceSettings.GetBodySize(race);
-            var stomachSize = State.RaceSettings.GetStomachSize(race);
-            //return $"{race}\n{racePar.RaceDescription}\nBody Size: {State.RaceSettings.GetBodySize(race)}\nBase Stomach Size: {State.RaceSettings.GetStomachSize(race)}\nFavored Stat: {racePar.FavoredStat}\nDefault Traits:\n{State.RaceSettings.ListTraits(race)}";
-            return $"{race}\n{racePar.RaceDescription}\nRace Body Size: {bodySize}\nCurrent Bulk: {actor?.Bulk()}\nBase Stomach Size: {stomachSize}\nFavored Stat: {State.RaceSettings.GetFavoredStat(race)}\nDeployment Cost: {State.RaceSettings.GetDeployCost(race) * unit.TraitBoosts.DeployCostMult}\nUpkeep: {State.RaceSettings.GetUpkeep(race) * unit.TraitBoosts.UpkeepMult}";
+            return UnitDesc();
         }
 
         if (unit != null && words[2] == InfoPanel.RaceSingular(unit))
         {
             race = unit.Race;
-            var racePar = RaceParameters.GetTraitData(unit);
+            return UnitDesc();
+        }
+        
+        string UnitDesc() // This mini-function is used in both the immediately prior blocks.
+        {
+            var raceDesc = RaceParameters.GetTraitData(unit).RaceDescription;
             var bodySize = State.RaceSettings.GetBodySize(race);
+			var bulk = (actor?.Bulk() ?? unit.Bulk()).ToString("F2");
             var stomachSize = State.RaceSettings.GetStomachSize(race);
-            //return $"{race}\n{racePar.RaceDescription}\nBody Size: {State.RaceSettings.GetBodySize(race)}\nBase Stomach Size: {State.RaceSettings.GetStomachSize(race)}\nFavored Stat: {racePar.FavoredStat}\nDefault Traits:\n{State.RaceSettings.ListTraits(race)}";
-            return $"{race}\n{racePar.RaceDescription}\nRace Body Size: {bodySize}\nCurrent Bulk: {actor?.Bulk()}\nBase Stomach Size: {stomachSize}\nFavored Stat: {State.RaceSettings.GetFavoredStat(race)}\nDeployment Cost: {State.RaceSettings.GetDeployCost(race) * unit.TraitBoosts.DeployCostMult}\nUpkeep: {State.RaceSettings.GetUpkeep(race) * unit.TraitBoosts.UpkeepMult}";
+			var favStat = State.RaceSettings.GetFavoredStat(race);
+			var deployCost = State.RaceSettings.GetDeployCost(race) * unit.TraitBoosts.DeployCostMult;
+			var upkeep = State.RaceSettings.GetUpkeep(race) * unit.TraitBoosts.UpkeepMult;
+            return $"{race}\n{raceDesc}\nRace Body Size: {bodySize}\nCurrent Bulk: {bulk}\nBase Stomach Size: {stomachSize}\nFavored Stat: {favStat}\nDeployment Cost: {deployCost}\nUpkeep: {upkeep}";
         }
 
         if (Enum.TryParse(words[2], out Traits trait))

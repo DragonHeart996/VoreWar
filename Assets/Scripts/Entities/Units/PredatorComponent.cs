@@ -17,7 +17,7 @@ interface IVoreCallback
     bool OnDigestion(Prey preyUnit, Actor_Unit predUnit, PreyLocation location);//any time living prey is digested but won't die yet
     bool OnFinishDigestion(Prey preyUnit, Actor_Unit predUnit, PreyLocation location);//right before unit dies
     bool OnDigestionKill(Prey preyUnit, Actor_Unit predUnit, PreyLocation location);//right after unit dies
-    bool OnAbsorption(Prey preyUnit, Actor_Unit predUnit, PreyLocation location);//any time a dead unit is being absorbed
+    bool OnAbsorption(Prey preyUnit, Actor_Unit predUnit, PreyLocation location, int damageToPrey, int healingToPred);//any time a dead unit is being absorbed
     bool OnFinishAbsorption(Prey preyUnit, Actor_Unit predUnit, PreyLocation location);//unit is done absorbing, but not removed yet
 }
 
@@ -1169,12 +1169,6 @@ public class PredatorComponent
                 totalHeal += DigestOneUnit(preyUnit, preyDamage);
             else
                 DigestOneUnit(preyUnit, preyDamage);
-            if (unit.HasTrait(Traits.Growth))
-            {
-                unit.BaseScale += ((float)totalHeal / preyUnit.Unit.MaxHealth * .2d) * CalculateGrowthValue(preyUnit);
-                if (unit.BaseScale > Config.GrowthCap)
-                    unit.BaseScale = Config.GrowthCap;
-            }
         }
         if (!(unit.Health < unit.MaxHealth))
         {
@@ -1187,16 +1181,6 @@ public class PredatorComponent
             TacticalUtilities.Log.RegisterHeal(unit, new int[] { totalHeal, 0 });
         }
         UpdateFullness();
-    }
-
-    float CalculateGrowthValue(Prey preyUnit)
-    {
-        float preyMass = preyUnit.Unit.TraitBoosts.BulkMultiplier * State.RaceSettings.GetBodySize(preyUnit.Unit.Race);
-        float predMass = unit.TraitBoosts.BulkMultiplier * State.RaceSettings.GetBodySize(unit.Race);
-        float sizeDiff = (preyUnit.Unit.GetScale(2) * preyMass) / (unit.GetScale(2) * predMass);
-        float preyBoosts = (((preyUnit.Unit.TraitBoosts.Outgoing.Nutrition - 1) * .2f) + 1f) * preyUnit.Unit.TraitBoosts.Outgoing.GrowthRate;
-        float predBoosts = (((unit.TraitBoosts.Incoming.Nutrition - 1) * .2f) + 1f) * unit.TraitBoosts.Incoming.GrowthRate * Config.GrowthMod;
-        return sizeDiff * preyBoosts * predBoosts * TagConditionChecker.ApplyTagEffect(unit, preyUnit.Unit, UnitTagModifierEffect.GrowthRateMult);
     }
 
     int ApplySettingsToDamage(int incoming_damage, Prey preyUnit)
@@ -1677,8 +1661,8 @@ public class PredatorComponent
             }
 
             int healthReduction = (int)Math.Max(Math.Round(preyUnit.Unit.MaxHealth * speedFactor / 15), 1);
-            if (healthReduction >= preyUnit.Unit.MaxHealth + preyUnit.Unit.Health)
-                healthReduction = preyUnit.Unit.MaxHealth + preyUnit.Unit.Health + 1;
+            if (healthReduction > preyUnit.Unit.MaxHealth + preyUnit.Unit.Health)
+                healthReduction = preyUnit.Unit.MaxHealth + preyUnit.Unit.Health;
             preyUnit.Actor.SubtractHealth(healthReduction);
             
             totalHeal += Math.Max((int)(healthReduction / 2 * preyUnit.Unit.TraitBoosts.Outgoing.Nutrition * unit.TraitBoosts.Incoming.Nutrition), 1);
@@ -1704,7 +1688,7 @@ public class PredatorComponent
             }
             foreach (IVoreCallback callback in Callbacks)
             {
-                if (!callback.OnAbsorption(preyUnit, actor, location))
+                if (!callback.OnAbsorption(preyUnit, actor, location, healthReduction, totalHeal))
                     return 0;
             }
             if (preyUnit.Unit.IsDeadAndOverkilledBy(healthReduction * 2) && preyUnit.SubPrey?.Count() > 0)

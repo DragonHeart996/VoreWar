@@ -2544,38 +2544,21 @@ public class Actor_Unit
 
     public float BodySize()
     {
-        float size = State.RaceSettings.GetBodySize(Unit.Race);
-
-        size *= Unit.GetScale(2);
-
-        size *= Unit.TraitBoosts.BulkMultiplier;
-
-        if (Unit.GetStatusEffect(StatusEffectType.Petrify) != null)
-            size *= 3;
-
-        if (Unit.GetStatusEffect(StatusEffectType.Frozen) != null)
-            size *= 2;
-
-        return size;
+        return Unit.Bulk();
     }
 
     public float Bulk(int count = 0)
     {
         if (Unit.HasTrait(Traits.Inedible))
             return float.MaxValue / 100;
-        float bulk = 0;
-        bulk += PredatorComponent?.GetBulkOfPrey(count) ?? 0;
+		
+		float bulk = BodySize();
         if (Unit.IsDead)
         {
-            float myBulk = Unit.Health + Unit.MaxHealth;
-            myBulk = myBulk / (Unit.MaxHealth) * BodySize();
-
-            bulk += myBulk;
+            bulk *= Unit.Health + Unit.MaxHealth;
+			bulk /= Unit.MaxHealth;
         }
-        else
-        {
-            bulk += BodySize();
-        }
+        bulk += PredatorComponent?.GetBulkOfPrey(count) ?? 0;
         return bulk;
     }
 
