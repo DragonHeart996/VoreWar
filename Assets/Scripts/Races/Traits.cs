@@ -36,7 +36,7 @@ abstract class VoreTrait : Trait, IVoreCallback
  *      3a. If you added to DirectionalStat, add both an Outgoing and an Incoming version instead.
  * 4. Add your variable's Name and Description to ChangeToolTip(), following the current implementation.
  * 5. If your variable is a bool, like OnLevelUpAllowAnyStat, add it to IsToggle, so the prefab becomes a toggle instead of an InputField
- * 5. Navigate to Utility/CustomTraitBoost.cs and add your variable to the ToBooster() functinon with the proper modifier.
+ * 6. Navigate to Utility/CustomTraitBoost.cs and add your variable to the ToBooster() functinon with the proper modifier.
  * 
  * I apologize for the extra work, but this WAS a 9 step guide with a lot of moving parts before I spent two days making it as developer friendly as possible, 
  * so I don't want to hear any belly aching. Enjoy.
@@ -534,7 +534,7 @@ internal class Growth : VoreTrait
 {
 	public Growth()
 	{
-		Description = "Each absorbtion makes this unit grow in size, but the effect slowly degrades outside battle.\n(Cheat Trait)";
+		Description = "Each absorption makes this unit grow in size, but the effect slowly degrades outside battle.\n(Cheat Trait)";
 	}
 	
 	public override int ProcessingPriority => 50;
