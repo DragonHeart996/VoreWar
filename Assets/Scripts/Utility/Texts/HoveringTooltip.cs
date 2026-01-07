@@ -196,8 +196,6 @@ public class HoveringTooltip : MonoBehaviour
             }
         }
 
-
-
         if (Enum.TryParse(words[2], out StatusEffectType effectType))
         {
             var effect = unit.GetLongestStatusEffect(effectType);
@@ -322,9 +320,6 @@ public class HoveringTooltip : MonoBehaviour
             }
         }
 
-
-
-
         switch (words[2])
         {
             case "surrendered":
@@ -361,7 +356,6 @@ public class HoveringTooltip : MonoBehaviour
 
         string StatData(Stat Stat)
         {
-
             string leader = "";
             int leaderBonus = unit.GetLeaderBonus();
             if (leaderBonus > 0) leader = $"+{leaderBonus} from leader\n";
@@ -372,10 +366,45 @@ public class HoveringTooltip : MonoBehaviour
             int effectBonus = unit.GetEffectBonus(Stat);
             if (effectBonus > 0) effects = $"+{effectBonus} from effects\n";
             else if (effectBonus < 0) effects = $"{effectBonus} from effects\n";
-            return $"{unit.GetStatBase(Stat)} base {Stat}\n{leader}{traits}{effects}Final Stat: {unit.GetStat(Stat)}";
+			string scale = "";
+			float scaleMult = unit.GetScale();
+			if (scaleMult != 1f) scale = scaleMult.ToString("F2") + "x from scale\n";
+			string allstats = "";
+			float statBoost = unit.TraitBoosts.StatMult;
+			if (statBoost != 1f) allstats = statBoost.ToString("F2") + "x from boost to all stats\n";
+			string specificstat = "";
+			switch (Stat)
+			{
+				case Stat.Strength:
+					statBoost = unit.TraitBoosts.StrengthMult;
+					break;
+				case Stat.Dexterity:
+					statBoost = unit.TraitBoosts.DexterityMult;
+					break;
+				case Stat.Voracity:
+					statBoost = unit.TraitBoosts.VoracityMult;
+					break;
+				case Stat.Agility:
+					statBoost = unit.TraitBoosts.AgilityMult;
+					break;
+				case Stat.Will:
+					statBoost = unit.TraitBoosts.WillMult;
+					break;
+				case Stat.Mind:
+					statBoost = unit.TraitBoosts.MindMult;
+					break;
+				case Stat.Endurance:
+					statBoost = unit.TraitBoosts.EnduranceMult;
+					break;
+				case Stat.Stomach:
+					statBoost = unit.TraitBoosts.StomachMult;
+					break;
+				default:
+					break;
+			}
+			if (statBoost != 1f) specificstat = statBoost.ToString("F2") + "x from boost to this stat\n";
+            return $"{unit.GetStatBase(Stat)} base {Stat}\n{leader}{traits}{effects}{scale}{allstats}{specificstat}Final Stat: {unit.GetStat(Stat)}";
         }
-
-
     }
 
     public static string GetTraitData(Traits trait)
@@ -516,7 +545,7 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.Revenant:
                 return "(Cheat Trait) - This unit can never die from weapons or spells, though digestion can kill it permanently.  If it is 'killed' during a battle, it will be set to full hp and act as though it fled (will rejoin if the army wins, otherwise sets off for the closest town) Note that these don't give immunity to digestion conversion unlike the pure eternal trait";
             case Traits.Reformer:
-                return "(Cheat Trait) - This unit can never die from being digested, but spells and weapons can kill it permanently.  If it is killed during a battle, it will be set to full hp and act as though it fled (will rejoin if the army wins, otherwise sets off for the closest town) Note that these don't give immunity to digestion conversion unlike the pure eternal trait";
+                return "(Cheat Trait) - This unit can never die from being digested, but spells and weapons can kill it permanently. If it is digested during a battle, it will be set to full hp and act as though it fled (will rejoin if the army wins, otherwise sets off for the closest town). Note that these don't give immunity to digestion conversion unlike the pure eternal trait";
             case Traits.LuckySurvival:
                 return "Unit has an 80% chance of acting like an eternal unit on death (coming back to life after the battle), with a 20% chance of dying normally.";
             case Traits.Replaceable:
@@ -603,10 +632,6 @@ public class HoveringTooltip : MonoBehaviour
                 return "Unit's belly rub action can make enemies pause for a turn, or even switch sides, as long as they haven't taken damage for two turns.\n(Cheat Trait)";
             case Traits.TheGreatEscape:
                 return "This unit cannot be digested, but the battle will end if only units with this remain and they're all eaten.  The prey are assumed to escape sometime later, and are count as fled units. (Note that you'd need end of battle review checked to see the escape messages as they happen at the very end of battle)";
-            case Traits.Growth:
-                return "Each absorbtion makes this unit grow in size, but the effect slowly degrades outside battle.\n(Cheat Trait)";
-            case Traits.PermanentGrowth:
-                return "An accessory trait to Growth that makes growth gained permanent.  (Does nothing without the Growth trait)\n(Cheat Trait)";
             case Traits.Berserk:
                 return "If the unit is reduced below half health by an attack, will go berserk, greatly increasing its strength and voracity for 3 turns.\nCan only occur once per battle.";
             case Traits.SynchronizedEvolution:
@@ -618,7 +643,7 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.ForceFeeder:
                 return "Allows unit to attempt force-feeding itself to another unit at will.";
             case Traits.Possession:
-				return "Temporarily control a Pred unit while digesting inside\n (Cheat Hidded Trait)";    
+				return "Temporarily control a Pred unit while digesting inside\n (Cheat Hidden Trait)";    
             case Traits.Corruption:
                 return "If a currupted unit is digested, the pred will build up corruption as a hidden status. Once corrupted prey with a stat total equal to that of the pred has been digested, they are under control of the side of the last-digested corrupted.\n(Hidden Trait)";
             case Traits.Reanimator:
@@ -720,7 +745,7 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.ManaBarrier:
                 return "Up to 50% of damage taken by unit instead spends mana, this trait loses 1% effectivity for every 1% missing mana percentage.";
             case Traits.Unflinching:
-                return "Unit's BladeDance, Tenacity, and Focus stack loss is reduced by if stacks are below 10% current HP.";
+                return "Unit's BladeDance, Tenacity, and Focus stack loss is reduced by 3 if stacks are below 10% current HP.";
             case Traits.Annihilation:
                 return "Every time digestion progresses, this unit digests one level from each prey inside them, gaining its experience value. If a unit hits level 0 this way, it dies if it was still alive and cannot be revived.\n(Cheat Trait)";
             case Traits.WeaponChanneler:
@@ -734,7 +759,7 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.Endosoma:
                 return "Units that are vored take no digestion damage \n Enemies lose stamina instead of health, enemies with no stamina no longer try to escape and are considered defeated at the end of battle, but not if freed. \n Has 100% chance to eat allies.Can vore friendly units, they do not try to escape. \n May cause battles to not automatically end if used with TheGreatEscape";
             case Traits.Friendosoma:
-                return "Enemies defeated by defeated by the Endosoma trait will now be recruited instead at the end of battle."; 
+                return "Enemies defeated by the Endosoma trait will now be recruited instead at the end of battle."; 
             case Traits.Duelist:
                 return "Melee damage is increased by 100%, but Melee damage is divided by the number of adjacent enemy units.";
             case Traits.Fervor:
@@ -818,7 +843,7 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.FocusedDodge:
                 return "Unit gains 20% increased dodge. This bonus is disabled for 3 turns after taking damage.";
             case Traits.BlessingOfNature:
-                return "This unit heals any unit that buffs it, equal to 5% of Endurance every turn while the buff persists. This unit gives 'Mendinig' to an ally within 2 spaces every 4th turn, duration scaling with level.";
+                return "This unit heals any unit that buffs it, equal to 5% of Endurance every turn while the buff persists. This unit gives 'Mending' to an ally within 2 spaces every 4th turn, duration scaling with level.";
             case Traits.BlessingOfEarth:
                 return "This unit grants barrier to any unit that buffs it, equal to 10% of Will every turn while the buff persists. This unit gives 'Shield' to an ally within 2 spaces every other turn, duration scaling with level.";
             case Traits.BlessingOfWater:
@@ -878,7 +903,6 @@ public class HoveringTooltip : MonoBehaviour
                     "Racial superiority is based on eminence.";
             //case RaceAI.NonCombatant:
             //    return "Won't use weapons or offensive spells, but supports combatants with beneficial spells and bodily services.";
-
         }
         return "<b>This AI needs a tooltip!</b>";
     }
