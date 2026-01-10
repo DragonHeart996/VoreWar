@@ -259,7 +259,7 @@ public class HoveringTooltip : MonoBehaviour
                         return $"Unit's stats are boosted by {effect.Duration}% for the rest of the battle.";
                     case StatusEffectType.Necrosis:
                         return $"Unit's healing is reduced by {effect.Strength * 25}% \nTurns Remaining: {effect.Duration}";
-                    case StatusEffectType.Errosion:
+                    case StatusEffectType.Erosion:
                         return $"Unit's weapon taken is increased by {effect.Strength * 20}% and digstion damage taken is increased by {effect.Strength * 50}%\nTurns Remaining: {effect.Duration}";
                     case StatusEffectType.Lethargy:
                         return $"Unit's Str,Dex, and Agi are reduced by {(effect.Strength * effect.Duration / 50)*100}% \nTurns Remaining: {effect.Duration}";
@@ -351,8 +351,6 @@ public class HoveringTooltip : MonoBehaviour
             default:
                 return "";
         }
-
-
 
         string StatData(Stat Stat)
         {
@@ -695,7 +693,7 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.Donor:
                 return "Upon being absorbed, this unit bestows all traits that are listed below \"Donor\" in its trait list.";
             case Traits.Extraction:
-                return "Every time digestion progresses, this unit steals one trait from each prey inside them, if only duplicates (or non-assimilable traits) remain, they are turned into exp. Absorbtion steals any that are left. Endoed units instead gain traits.\n(Cheat Trait)";
+                return "Every time digestion progresses, this unit steals one trait from each prey inside them, if only duplicates (or non-assimilable traits) remain, they are turned into exp. Absorption steals any that are left. Endoed units instead gain traits.\n(Cheat Trait)";
             //case Traits.Shapeshifter:
             //    return "Gives the ability to change into different races after acquiring them via absorbing, being reborn, reincarnating, being endoed or infiltrating. Also Allows Traversal of all terrain at normal speed.";
             //case Traits.Skinwalker:
@@ -733,15 +731,15 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.ArcaneMagistrate:
                 return "Unit gains 1 focus when it hits a spell, unit gains 4 more if the spell kills the target. Focus: Unit has its mind increased.";
             case Traits.SwiftStrike:
-                return "Unit deals up 1% more weapon damage per agility it has over it's target, up to 25%, tripled when using light weapons.";
+                return "Unit deals up 1% more weapon damage per agility it has over its target, up to 25%, tripled when using light weapons.";
             case Traits.Timid:
-                return "Unit is shaken if the turn ends and there are more enemies than allies are nearby. (This unit counts as it's own ally)";
+                return "Unit is shaken if the turn ends and there are more enemies than allies are nearby. (This unit counts as its own ally)";
             case Traits.Cowardly:
-                return "Unit has a chance based on it's missing health to surrender.";
+                return "Unit has a chance based on its missing health to surrender.";
             case Traits.TurnCoat:
-                return "Unit has a chance based on it's missing health to change sides.";
+                return "Unit has a chance based on its missing health to change sides.";
             case Traits.MagicSynthesis:
-                return "When Unit is hit by a damaging magic spell, it gains a single cast of that spell and restores 75% of it's cost.";
+                return "When Unit is hit by a damaging magic spell, it gains a single cast of that spell and restores 75% of its cost.";
             case Traits.ManaBarrier:
                 return "Up to 50% of damage taken by unit instead spends mana, this trait loses 1% effectivity for every 1% missing mana percentage.";
             case Traits.Unflinching:
@@ -783,11 +781,11 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.FoodComaProne:
                 return "While full, at the start of turn, unit has a chance based on current fullness to fall asleep.";
             case Traits.SleepItOff:
-                return "While asleep, unit's digestion damage and absorption rate is doubled. Unit has a chance based on fullness to extend it's own sleep status by a turn.";
+                return "While asleep, unit's digestion damage and absorption rate is doubled. Unit has a chance based on fullness to extend its own sleep status by a turn.";
             case Traits.HaplessPrey:
                 return "Unit has a 10% chance of force-feeding themselves to their melee attack target instead of attacking, if possible. Chance is increased by 5% per difference in level.";
             case Traits.PleasantDigestion:
-                return "While being digested, unit will heal it's predator each turn.";
+                return "While being digested, unit will heal its predator each turn.";
             case Traits.AllIn:
                 return "Unit gains the ability to make a vore attempt at increased odds, if it fails their target vores them instead, if possible.";
             case Traits.SiphoningAura:
@@ -799,7 +797,7 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.SlowStart:
                 return "For the first 5 turns of battle, unit's MP is reduced by 50%.";
             case Traits.CurseOfImmolation:
-                return "At start of turn, Unit deals it's level in fire damage to itself and all units around it or it's predator, if this unit has been consumed. This damage can not kill. Effect does not activate if unit has surrendered.";
+                return "At start of turn, Unit deals its level in fire damage to itself and all units around it or its predator, if this unit has been consumed. This damage can not kill. Effect does not activate if unit has surrendered.";
             case Traits.CurseOfSacrifice:
                 return "When a unit within 3 spaces is consumed, this unit has a 10% chance to trade places with them and be consumed instead.";          
             case Traits.CurseOfEquivalency:
@@ -807,7 +805,7 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.CurseOfPhasing:
                 return "When hit by an attack, unit has a 50% chance to teleport to a random space within 3 spaces. If a unit occupies that space, this unit is consumed by the occupier.";
             case Traits.CurseOfCraving:
-                return "At the start of battle, this unit has a 50% chance to have eaten one of it's allies.";
+                return "At the start of battle, this unit has a 50% chance to have eaten one of its allies.";
             case Traits.CurseOfPreyportaion:
                 return "At the start of battle, this unit has a 25% chance to teleported into a random predator.";       
             case Traits.Competitive:
@@ -827,7 +825,7 @@ public class HoveringTooltip : MonoBehaviour
             case Traits.DireInfection:
                 return "A melee attack that debilitates the target for 1 turn reducing movement to 1 and badly poisons them for 6 turns.";
             case Traits.GiantSlayer:
-                return Config.SizeDamageMod > 0 && Config.SizeDamageInterval > 0 ? "Bonus damage from larger units is reduced by 75% and Unit's damage against larger targets is not reduced" : "Units damage is increased by 1% for every 1 size larger the target is. (capped at 25)";
+                return Config.SizeDamageMod > 0 && Config.SizeDamageInterval > 0 ? "Bonus damage from larger units is reduced by 75% and Unit's damage against larger targets is not reduced" : "Unit's damage is increased by 1% for every 1 size larger the target is. (capped at 25)";
             case Traits.Crusher:
                 return Config.SizeDamageMod > 0 && Config.SizeDamageInterval > 0 ? "Bonus damage against smaller targets is increased by 50% and unit ignores size bounds." : "Units damage is increased by 1% for every 1 size smaller the target is. (capped at 25)";
             case Traits.Cartography:
@@ -852,7 +850,7 @@ public class HoveringTooltip : MonoBehaviour
                 return "This unit grants sharpness to any unit that buffs it, equal to 10% of Strength every turn while the buff persists. This unit gives 'Valor' to an ally within 2 spaces every other turn, duration scaling with level.";
             case Traits.TotalAbsorption:
                 return "This unit does not produce waste or remains when digesting or absorbing prey.";
-            case Traits.Crystaline:
+            case Traits.Crystalline:
                 return "Unit takes 25% reduced damage from all sources, but each time it is hit it has a 1/4 chance to gain the 'Fractured' status effect, canceling out this trait and greatly increasing damage from all sources. 'Fractured' lasts until the battle is over.";
             case Traits.DyingStrike:
                 return "When unit is killed in melee or digested does has a 1/3 chance of hitting with a melee attack against the aggressor, 3/4 hit chance if vored.";

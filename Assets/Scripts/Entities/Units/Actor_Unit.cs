@@ -543,7 +543,7 @@ public class Actor_Unit
         modeQueue.Add(new KeyValuePair<int, float>((int)displayMode, time));
     }
 
-    public void SetAbsorbtionMode()
+    public void SetAbsorptionMode()
     {
         if (Config.BurpOnDigest || Config.BurpFraction < .1f)
         {
@@ -1078,7 +1078,7 @@ public class Actor_Unit
             {
                 damageScalar *= 1.15f;
             }
-            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystaline))
+            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystalline))
             {
                 damageScalar *= 0.75f;
             }
@@ -1141,7 +1141,7 @@ public class Actor_Unit
             {
                 damageScalar *= 1.15f;
             }
-            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystaline))
+            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystalline))
             {
                 damageScalar *= 0.75f;
             }
@@ -1149,8 +1149,8 @@ public class Actor_Unit
             {
                 damageScalar *= 1.50f;
             }
-            if (target.Unit.GetStatusEffect(StatusEffectType.Errosion) != null)
-                damageScalar += damageScalar * (target.Unit.GetStatusEffect(StatusEffectType.Errosion).Strength / 5);
+            if (target.Unit.GetStatusEffect(StatusEffectType.Erosion) != null)
+                damageScalar += damageScalar * (target.Unit.GetStatusEffect(StatusEffectType.Erosion).Strength / 5);
 
             if (Unit.GetStatusEffect(StatusEffectType.Valor) != null)
             {
@@ -1776,7 +1776,7 @@ public class Actor_Unit
                         target.Unit.AddTenacious();
                     if (target.Unit.GetStatusEffect(StatusEffectType.Focus) != null)                  
                         target.Unit.RemoveFocus();
-                    if (target.Unit.HasTrait(Traits.Crystaline) && State.Rand.Next(4) == 0)
+                    if (target.Unit.HasTrait(Traits.Crystalline) && State.Rand.Next(4) == 0)
                         target.Unit.ApplyStatusEffect(StatusEffectType.Fractured, 1, 1);
                     if (Unit.GetStatusEffect(StatusEffectType.Sharpness) != null)                  
                         Unit.RemoveStackStatus(StatusEffectType.Sharpness, Unit.GetStatusEffect(StatusEffectType.Sharpness).Duration / 2);
@@ -1884,7 +1884,7 @@ public class Actor_Unit
                         target.Unit.RemoveFocus();
                     if (target.Unit.HasTrait(Traits.Toxic) && State.Rand.Next(8) == 0)
                         Unit.ApplyStatusEffect(StatusEffectType.Poisoned, 2 + target.Unit.GetStat(Stat.Endurance) / 20, 3);
-                    if (target.Unit.HasTrait(Traits.Crystaline) && State.Rand.Next(4) == 0)
+                    if (target.Unit.HasTrait(Traits.Crystalline) && State.Rand.Next(4) == 0)
                         target.Unit.ApplyStatusEffect(StatusEffectType.Fractured, 1, 1);
                     if (Unit.HasTrait(Traits.ForcefulBlow))
                         TacticalUtilities.KnockBack(this, target);
@@ -2120,7 +2120,7 @@ public class Actor_Unit
 
         if (DefendSpellCheck(spell, attacker, out float chance))
         {
-            if (Unit.GetStatusEffect(StatusEffectType.Fractured) == null && Unit.HasTrait(Traits.Crystaline))
+            if (Unit.GetStatusEffect(StatusEffectType.Fractured) == null && Unit.HasTrait(Traits.Crystalline))
             {
                 Unit.TraitBoosts.Incoming.MagicDamage *= 0.75f;
             }
@@ -2141,7 +2141,7 @@ public class Actor_Unit
                     Unit.StatusEffects.Remove(charm);                // betrayal dispels charm
                 }
             }
-            if (Unit.HasTrait(Traits.Crystaline) && State.Rand.Next(4) == 0)
+            if (Unit.HasTrait(Traits.Crystalline) && State.Rand.Next(4) == 0)
                 Unit.ApplyStatusEffect(StatusEffectType.Fractured, 1, 1);
             if (attacker.Unit.HasTrait(Traits.ArcaneMagistrate))
             {

@@ -671,7 +671,7 @@ public class TacticalMode : SceneBase
                             if (darkMagicTower.PactLevel >= 2)
                                 durr += Config.BuildConfig.DarkMagicTowerDurationImprovement;
                             break;
-                        case StatusEffectType.Errosion:
+                        case StatusEffectType.Erosion:
                             if (darkMagicTower.PactLevel >= 4)
                                 acc = Config.BuildConfig.DarkMagicTowerAccImprovement;
                             if (darkMagicTower.PactLevel >= 5)
@@ -923,7 +923,7 @@ public class TacticalMode : SceneBase
                 {
                     DefenseEncampment defenseEncampment = (DefenseEncampment)building;
                     int summonCount = (int)Math.Ceiling(attackers.Count() * (Config.BuildConfig.DefenseEncampmentArmyPercentage * (defenseEncampment.unitUpgrade.built ? 1.5f : 1)));
-                    while (summonCount > 0 && defenseEncampment.AvailibleDefenders > 0)
+                    while (summonCount > 0 && defenseEncampment.AvailableDefenders > 0)
                     {
                         Empire empire = defender?.Empire ?? village.Empire;
                         float advancedChance = 0.2f * (defenseEncampment.improveUpgrade.built ? 4f : 1);
@@ -965,7 +965,7 @@ public class TacticalMode : SceneBase
                         units.Add(unit);
                         unit.Unit.CurrentLeader = DefenderLeader;
                         DefCampSummonedUnits++;
-                        defenseEncampment.AvailibleDefenders--;
+                        defenseEncampment.AvailableDefenders--;
                         summonCount--;
                     }
                 }
@@ -1034,7 +1034,7 @@ public class TacticalMode : SceneBase
                             if (darkMagicTower.PactLevel >= 2)
                                 durr += Config.BuildConfig.DarkMagicTowerDurationImprovement;
                             break;
-                        case StatusEffectType.Errosion:
+                        case StatusEffectType.Erosion:
                             if (darkMagicTower.PactLevel >= 4)
                                 acc = Config.BuildConfig.DarkMagicTowerAccImprovement;
                             if (darkMagicTower.PactLevel >= 5)
@@ -4832,9 +4832,9 @@ Turns: {currentTurn}
                     IEnumerable<DefenseEncampment> possible_camps = defenderBuildingsInRange.Where(b => b is DefenseEncampment).Cast<DefenseEncampment>();
                     if (possible_camps != null)
                     {
-                        DefenseEncampment camp = possible_camps.Where(d => d.maxDefenders > d.AvailibleDefenders).First();
+                        DefenseEncampment camp = possible_camps.Where(d => d.maxDefenders > d.AvailableDefenders).First();
                         if (camp != null)
-                            camp.AvailibleDefenders++;
+                            camp.AvailableDefenders++;
                     }
                     units.Remove(actor);
                     continue;

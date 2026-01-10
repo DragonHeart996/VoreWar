@@ -1633,7 +1633,7 @@ internal class EventList
                             var garrison = village.PrepareAndReturnGarrison();
                             if ((State.Rand.Next(2) == 0) && (garrison.Count > 0))
                             {
-                                State.GameManager.CreateMessageBox($"The garrison successfully baits the creature out of it's den, once out they slowly lure it away from the village into the wilderness. The villagers are relieved to have the predator dealt with. The child, although sad that their \"kitty\" is gone, is happy knowing that it wasn’t harmed and is free to eat all it wants.\n\nVillage Happiness +20, Gold +100");
+                                State.GameManager.CreateMessageBox($"The garrison successfully baits the creature out of its den, once out they slowly lure it away from the village into the wilderness. The villagers are relieved to have the predator dealt with. The child, although sad that their \"kitty\" is gone, is happy knowing that it wasn’t harmed and is free to eat all it wants.\n\nVillage Happiness +20, Gold +100");
                                 empire.AddGold(100);
                                 village.Happiness += 20;
                             }
