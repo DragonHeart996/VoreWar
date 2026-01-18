@@ -4310,7 +4310,6 @@ public class TacticalMode : SceneBase
             
             foreach (List<Vec2i> dropzone in droporder)
             {
-                if (State.Rand.NextDouble() < 0.3) break;
                 int count = dropzone.Count();
                 if (count > 0)
                 {
