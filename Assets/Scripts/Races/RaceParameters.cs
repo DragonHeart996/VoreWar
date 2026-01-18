@@ -3699,7 +3699,7 @@ static class RaceParameters
                 Traits.ColdTolerance,
             },
             InnateSpells = new List<SpellTypes>() { SpellTypes.IceBlast },
-            RaceDescription = "A hybrid between a dragon and salamander whom excels in climbing and swimming but lacks any wings for flight.",
+            RaceDescription = "A hybrid between a dragon and salamander who excels in climbing and swimming but lacks any wings for flight.",
 
         };
 

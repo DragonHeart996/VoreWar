@@ -4358,7 +4358,7 @@ public class PredatorComponent
                         State.GameManager.TacticalMode.Log.RegisterMiscellaneous($"<b>{forcePrey.Unit.Name}</b> spots <b>{unit.Name}</b> and decided that {LogUtilities.GPPHeIsAbbr(forcePrey.Unit)} got to go inside. Without so much as an \"excuse me,\" the {LogUtilities.GetRaceDescSingl(forcePrey.Unit)} unapologetically forces {LogUtilities.GPPHimself(forcePrey.Unit)} down the {LogUtilities.ApostrophizeWithOrWithoutS(LogUtilities.GetRaceDescSingl(unit))} {LogUtilities.GetRandomStringFrom("jaws", "maw", "mouth", "muzzle", "gob")}.");
                         break;
                     case 4:
-                        State.GameManager.TacticalMode.Log.RegisterMiscellaneous($"<b>{forcePrey.Unit.Name}</b> abruptly sticks {LogUtilities.GPPHis(forcePrey.Unit)} head in <b>{LogUtilities.ApostrophizeWithOrWithoutS(unit.Name)}</b> mouth, looking around the inside for a few moments, before forcing {LogUtilities.GPPHis(forcePrey.Unit)} way down into the {LogUtilities.ApostrophizeWithOrWithoutS(LogUtilities.GetRaceDescSingl(forcePrey.Unit))} {PreyLocStrings.ToSyn(PreyLocation.stomach)}.");
+                        State.GameManager.TacticalMode.Log.RegisterMiscellaneous($"<b>{forcePrey.Unit.Name}</b> abruptly sticks {LogUtilities.GPPHis(forcePrey.Unit)} head in <b>{LogUtilities.ApostrophizeWithOrWithoutS(unit.Name)}</b> mouth, looking around the inside for a few moments, before forcing {LogUtilities.GPPHis(forcePrey.Unit)} way down into the {LogUtilities.ApostrophizeWithOrWithoutS(LogUtilities.GetRaceDescSingl(unit))} {PreyLocStrings.ToSyn(PreyLocation.stomach)}.");
                         break;
                     case 5:
                         if (LogUtilities.ActorHumanoid(forcePrey.Unit))
@@ -4754,7 +4754,7 @@ public class PredatorComponent
                         State.GameManager.TacticalMode.Log.RegisterMiscellaneous($"<b>{forcePrey.Unit.Name}</b> spots <b>{unit.Name}</b> and decided that {LogUtilities.GPPHeIsAbbr(forcePrey.Unit)} got to go inside. Without so much as an \"excuse me,\" the {LogUtilities.GetRaceDescSingl(forcePrey.Unit)} unapologetically forces {LogUtilities.GPPHimself(forcePrey.Unit)} down the {LogUtilities.ApostrophizeWithOrWithoutS(LogUtilities.GetRaceDescSingl(unit))} {LogUtilities.GetRandomStringFrom("jaws", "maw", "mouth", "muzzle", "gob")}.");
                         break;
                     case 4:
-                        State.GameManager.TacticalMode.Log.RegisterMiscellaneous($"<b>{forcePrey.Unit.Name}</b> abruptly sticks {LogUtilities.GPPHis(forcePrey.Unit)} head in <b>{LogUtilities.ApostrophizeWithOrWithoutS(unit.Name)}</b> mouth, looking around the inside for a few moments, before forcing {LogUtilities.GPPHis(forcePrey.Unit)} way down into the {LogUtilities.ApostrophizeWithOrWithoutS(LogUtilities.GetRaceDescSingl(forcePrey.Unit))} {PreyLocStrings.ToSyn(PreyLocation.stomach)}.");
+                        State.GameManager.TacticalMode.Log.RegisterMiscellaneous($"<b>{forcePrey.Unit.Name}</b> abruptly sticks {LogUtilities.GPPHis(forcePrey.Unit)} head in <b>{LogUtilities.ApostrophizeWithOrWithoutS(unit.Name)}</b> mouth, looking around the inside for a few moments, before forcing {LogUtilities.GPPHis(forcePrey.Unit)} way down into the {LogUtilities.ApostrophizeWithOrWithoutS(LogUtilities.GetRaceDescSingl(unit))} {PreyLocStrings.ToSyn(PreyLocation.stomach)}.");
                         break;
                     case 5:
                         if (LogUtilities.ActorHumanoid(forcePrey.Unit))

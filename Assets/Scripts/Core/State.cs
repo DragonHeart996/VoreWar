@@ -684,17 +684,19 @@ public static class State
                 {
                     World.GetEmpireOfSide(701).Name = "Bandits";
                 }
-                /*         if (World.GetEmpireOfSide(702) == null)
-                        {
-                            World.MainEmpires.Add(new Empire(new Empire.ConstructionArgs(702, Color.red, new Color(.6f, 0, 0), 5, StrategyAIType.Basic, TacticalAIType.Full, 702, 16, 16)));
-                            World.RefreshEmpires();
-                        }
-                        else
-                        {
-                            World.GetEmpireOfSide(702).Name = "Outcasts";
-                            if (World.EmpireOrder.Where(s => s.Side == 702).Any() == false)
-                                World.EmpireOrder.Add(World.GetEmpireOfSide(702));
-                        } */
+                /*
+                if (World.GetEmpireOfSide(702) == null)
+                {
+                    World.MainEmpires.Add(new Empire(new Empire.ConstructionArgs(702, Color.red, new Color(.6f, 0, 0), 5, StrategyAIType.Basic, TacticalAIType.Full, 702, 16, 16)));
+                    World.RefreshEmpires();
+                }
+                else
+                {
+                    World.GetEmpireOfSide(702).Name = "Outcasts";
+                    if (World.EmpireOrder.Where(s => s.Side == 702).Any() == false)
+                        World.EmpireOrder.Add(World.GetEmpireOfSide(702));
+                }
+                */
                 if (version < 30 + 1)
                 {
                     if (World.AllActiveEmpires != null)
@@ -1153,7 +1155,7 @@ public static class State
 
             if (version < 44 + 1)
             {
-                // Updates specific to version 45.
+                // Herein are the updates specific to version 45.
                 
                 // Since DefenseEncampment.AvailibleDefenders was renamed to AvailableDefenders, they will not have loaded correctly (if present).
                 bool defcampsfound = false;

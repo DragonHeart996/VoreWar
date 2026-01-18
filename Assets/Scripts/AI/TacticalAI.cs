@@ -377,16 +377,15 @@ public abstract class TacticalAI : ITacticalAI
 
         foreach (Actor_Unit unit in actors)
         {
-            if (unit.Targetable == true && unit.Unit.Predator && unit.Unit.FixedSide == temptation.Strength && TacticalUtilities.GetMindControlSide(unit.Unit) == -1 && !unit.Surrendered)
+            if (unit.Targetable == true && unit.Unit.Predator && unit.Unit.FixedSide == temptation?.Applicator?.FixedSide && TacticalUtilities.GetMindControlSide(unit.Unit) == -1 && !unit.Surrendered)
             {
                 int distance = unit.Position.GetNumberOfMovesDistance(position);
                 if (distance < ap)
                 {
                     if (distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false)
                         continue;
-                targets.Add(new PotentialTarget(unit, 100, distance, 4, -distance));
+                    targets.Add(new PotentialTarget(unit, 100, distance, 4, -distance + (unit.Unit == temptation?.Applicator ? actor.CurrentMaxMovement() / 2 : 0)));
                 }
-
             }
         }
         targets = targets.OrderByDescending(t => t.utility).ToList();
@@ -422,7 +421,7 @@ public abstract class TacticalAI : ITacticalAI
 
         foreach (Actor_Unit unit in actors)
         {
-            if (unit.Targetable == true && unit.Unit.Predator && unit.Unit.FixedSide == temptation.Strength && TacticalUtilities.GetMindControlSide(unit.Unit) == -1 && !unit.Surrendered)
+            if (unit.Targetable == true && unit.Unit.Predator && unit.Unit.FixedSide == temptation?.Applicator?.FixedSide && TacticalUtilities.GetMindControlSide(unit.Unit) == -1 && !unit.Surrendered)
             {
                 int distance = unit.Position.GetNumberOfMovesDistance(actor.Position);
                 if (distance < actor.Movement)
@@ -431,7 +430,6 @@ public abstract class TacticalAI : ITacticalAI
                         continue;
                     targets.Add(new PotentialTarget(unit, 100, distance, 4, -distance));
                 }
-
             }
         }
         targets = targets.OrderByDescending(t => t.utility).ToList();

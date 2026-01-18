@@ -335,26 +335,16 @@ public class Actor_Unit
     /// This one is a dummy for some cases
     /// </summary>
     /// <param name="unit"></param>
-    public Actor_Unit(Unit unit)
-    {
-        unit.SetBreastSize(-1); //Resets to default
-        Mode = DisplayMode.None;
-        modeQueue = new List<KeyValuePair<int, float>>();
-        animationUpdateTime = 0;
-        Position = new Vec2i(0, 0);
-        Unit = unit;
-        Visible = true;
-        Targetable = true;
-    }
+    public Actor_Unit(Unit unit) : this(new Vec2i(0, 0), unit) { }
 
-    public Actor_Unit(Unit unit, Actor_Unit reciepient)
+    public Actor_Unit(Unit unit, Actor_Unit recipient)
     {
         PredatorComponent = new PredatorComponent(this, unit);
         unit.SetBreastSize(-1); //Resets to default
         Mode = DisplayMode.None;
         modeQueue = new List<KeyValuePair<int, float>>();
         animationUpdateTime = 0;
-        Position = reciepient.Position;
+        Position = recipient.Position;
         Unit = unit;
         Visible = false;
         Targetable = false;
@@ -1668,7 +1658,7 @@ public class Actor_Unit
             int levelDiff = target.Unit.Level - Unit.Level;
             if (levelDiff < 0)
                 levelDiff = 0;
-            haplessChance += levelDiff / 20;
+            haplessChance += (float)levelDiff / 20;
             if (haplessChance >= State.Rand.NextDouble())
             {
                 Movement = 0;

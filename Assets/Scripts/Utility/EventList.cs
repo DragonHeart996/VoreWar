@@ -800,7 +800,7 @@ internal class EventList
                     Village village = GetRandomVillage(empire.Side);
                     if (village == null || empire.CanVore)
                         return false;
-                    UI.MainText.text = $"News from the province of {village.Name}. It would seem that a traveling \"hero\" known as has devoured the local noble managing the area. The hero attests that the vassal was a petty tyrant whom tormented the local populace. The noble, over the sounds of their own digestion, vehemently denied these accusations with a wobble. What shall be done?";
+                    UI.MainText.text = $"News from the province of {village.Name}. It would seem that a traveling \"hero\" known as has devoured the local noble managing the area. The hero attests that the vassal was a petty tyrant who tormented the local populace. The noble, over the sounds of their own digestion, vehemently denied these accusations with a wobble. What shall be done?";
                     UI.MainText.text += AddVillageInfo(village);
                     UI.FirstChoice.GetComponentInChildren<Text>().text = $"The hero did the right thing. Rumors of the vassal’s corruption have long circulated. Applaud the hero and have them join the army.";
                     UI.FirstChoice.onClick.AddListener(() =>
