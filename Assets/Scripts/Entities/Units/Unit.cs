@@ -715,6 +715,7 @@ public class Unit
         Mana = MaxMana;
         Stamina = MaxStamina;
         Barrier = 0;
+        Items = new Item[Config.ItemSlots];
     }
 
     public Unit(int side, Race race, int startingXP, bool predator, UnitType type = UnitType.Soldier, bool immuneToDefectons = false)

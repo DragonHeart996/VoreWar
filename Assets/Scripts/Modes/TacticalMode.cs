@@ -4186,7 +4186,7 @@ public class TacticalMode : SceneBase
         List<Vec2i> Tertiary;
         List<Vec2i> Final;
         
-        public DropZones(TacticalTileType[,] tiles, bool[,] tilenetwork, bool attacker)
+        public DropZones(bool[,] tilenetwork, bool attacker)
         {
             MeleePrimary = new List<Vec2i>();
             MeleeSecondary = new List<Vec2i>();
@@ -4419,8 +4419,8 @@ public class TacticalMode : SceneBase
                 break;
         }
         
-        DropZones attackerdropper = new DropZones (tiles, bestnetwork, true);
-        DropZones defenderdropper = new DropZones (tiles, bestnetwork, false);
+        DropZones attackerdropper = new DropZones (bestnetwork, true);
+        DropZones defenderdropper = new DropZones (bestnetwork, false);
         foreach (Actor_Unit actor in units)
         {
             if (actor.Unit.GetApparentSide() == attackerSide)

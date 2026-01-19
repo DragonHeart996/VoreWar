@@ -56,7 +56,8 @@ public class Actor_Unit
     [OdinSerialize]
     public Unit Unit { get; private set; }
     [OdinSerialize]
-    public Vec2i Position { get; private set; }
+    private Vec2i _position;
+	public Vec2i Position { get => SelfPrey?.Predator?.Position ?? _position; private set => _position = value; }
     [OdinSerialize]
     public int Movement;
     [OdinSerialize]
