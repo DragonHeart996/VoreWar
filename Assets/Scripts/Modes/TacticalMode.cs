@@ -671,7 +671,7 @@ public class TacticalMode : SceneBase
                             if (darkMagicTower.PactLevel >= 2)
                                 durr += Config.BuildConfig.DarkMagicTowerDurationImprovement;
                             break;
-                        case StatusEffectType.Errosion:
+                        case StatusEffectType.Erosion:
                             if (darkMagicTower.PactLevel >= 4)
                                 acc = Config.BuildConfig.DarkMagicTowerAccImprovement;
                             if (darkMagicTower.PactLevel >= 5)
@@ -923,7 +923,7 @@ public class TacticalMode : SceneBase
                 {
                     DefenseEncampment defenseEncampment = (DefenseEncampment)building;
                     int summonCount = (int)Math.Ceiling(attackers.Count() * (Config.BuildConfig.DefenseEncampmentArmyPercentage * (defenseEncampment.unitUpgrade.built ? 1.5f : 1)));
-                    while (summonCount > 0 && defenseEncampment.AvailibleDefenders > 0)
+                    while (summonCount > 0 && defenseEncampment.AvailableDefenders > 0)
                     {
                         Empire empire = defender?.Empire ?? village.Empire;
                         float advancedChance = 0.2f * (defenseEncampment.improveUpgrade.built ? 4f : 1);
@@ -965,7 +965,7 @@ public class TacticalMode : SceneBase
                         units.Add(unit);
                         unit.Unit.CurrentLeader = DefenderLeader;
                         DefCampSummonedUnits++;
-                        defenseEncampment.AvailibleDefenders--;
+                        defenseEncampment.AvailableDefenders--;
                         summonCount--;
                     }
                 }
@@ -1034,7 +1034,7 @@ public class TacticalMode : SceneBase
                             if (darkMagicTower.PactLevel >= 2)
                                 durr += Config.BuildConfig.DarkMagicTowerDurationImprovement;
                             break;
-                        case StatusEffectType.Errosion:
+                        case StatusEffectType.Erosion:
                             if (darkMagicTower.PactLevel >= 4)
                                 acc = Config.BuildConfig.DarkMagicTowerAccImprovement;
                             if (darkMagicTower.PactLevel >= 5)
@@ -2406,7 +2406,10 @@ Turns: {currentTurn}
                 continue;
             Vec2i pos = target.Position;
             target.UnitSprite.HitPercentagesDisplayed(true);
-            if (actor.PredatorComponent.FreeCap() < target.Bulk() || (actor.BodySize() < target.BodySize() * 3 && actor.Unit.HasTrait(Traits.TightNethers) && PreyLocationMethods.IsGenital(location)))
+            float cap = actor.PredatorComponent.FreeCap();
+            if ((cap < target.Bulk()  
+                 && !(cap >= 1 && actor.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
+                || (actor.BodySize() < target.BodySize() * 3 && actor.Unit.HasTrait(Traits.TightNethers) && PreyLocationMethods.IsGenital(location)))
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true), Color.yellow);
             else if (actor.Unit.CanVore(location) != actor.PredatorComponent.CanVore(location,target))
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true), Color.yellow);
@@ -2435,7 +2438,10 @@ Turns: {currentTurn}
                 continue;
             Vec2i pos = target.Position;
             target.UnitSprite.HitPercentagesDisplayed(true);
-            if (actor.PredatorComponent.FreeCap() < target.Bulk() || (actor.BodySize() < target.BodySize() * 3 && actor.Unit.HasTrait(Traits.TightNethers) && PreyLocationMethods.IsGenital(location)))
+            float cap = actor.PredatorComponent.FreeCap();
+            if ((cap < target.Bulk()  
+                 && !(cap >= 1 && actor.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
+                || (actor.BodySize() < target.BodySize() * 3 && actor.Unit.HasTrait(Traits.TightNethers) && PreyLocationMethods.IsGenital(location)))
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true, skillBoost), Color.yellow);
             else if (actor.Unit.CanVore(location) != actor.PredatorComponent.CanVore(location,target))
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true, skillBoost), Color.yellow);
@@ -2606,7 +2612,10 @@ Turns: {currentTurn}
             {
                 if (actor.PredatorComponent.CanTransfer())
                 {
-                    if (target.PredatorComponent.FreeCap() < actor.PredatorComponent.TransferBulk() && !(target.Unit == actor.Unit))
+                    float cap = target.PredatorComponent.FreeCap();
+                    if ((cap < actor.PredatorComponent.TransferBulk()
+                         && !(cap >= 1 && target.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
+                        && !(target.Unit == actor.Unit))
                         target.UnitSprite.DisplayHitPercentage(target.GetSpecialChance(SpecialAction.Transfer), Color.yellow);
                     else if (actor.Position.GetNumberOfMovesDistance(target.Position) < 2)
                         target.UnitSprite.DisplayHitPercentage(target.GetSpecialChance(SpecialAction.Transfer), Color.red);
@@ -2630,7 +2639,10 @@ Turns: {currentTurn}
             {
                 if (actor.PredatorComponent.CanKissTransfer())
                 {
-                    if (target.PredatorComponent.FreeCap() < actor.PredatorComponent.KissTransferBulk() && !(target.Unit == actor.Unit))
+                    float cap = target.PredatorComponent.FreeCap();
+                    if ((cap < actor.PredatorComponent.KissTransferBulk()
+                         && !(cap >= 1 && target.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
+                         && !(target.Unit == actor.Unit))
                         target.UnitSprite.DisplayHitPercentage(target.GetSpecialChance(SpecialAction.KissTransfer), Color.yellow);
                     else if ((actor.Position.GetNumberOfMovesDistance(target.Position) < 2) && !(target.Unit == actor.Unit))
                         target.UnitSprite.DisplayHitPercentage(target.GetSpecialChance(SpecialAction.KissTransfer), Color.red);
@@ -2649,7 +2661,10 @@ Turns: {currentTurn}
         {
             if (!actor.PredatorComponent.CanVoreSteal(target))
                 continue;
-            if (actor.PredatorComponent.FreeCap() < target.PredatorComponent.StealBulk() && (target.Unit != actor.Unit))
+            float cap = actor.PredatorComponent.FreeCap();
+            if ((cap < target.PredatorComponent.StealBulk() 
+                 && !(cap >= 1 && actor.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit 
+                && (target.Unit != actor.Unit))
                 target.UnitSprite.DisplayHitPercentage(target.PredatorComponent.GetVoreStealChance(actor), Color.yellow);
             else if ((actor.Position.GetNumberOfMovesDistance(target.Position) < 2) && (target.Unit != actor.Unit))
                 target.UnitSprite.DisplayHitPercentage(target.PredatorComponent.GetVoreStealChance(actor), Color.red);
@@ -2751,7 +2766,9 @@ Turns: {currentTurn}
                 continue;
             Vec2i pos = target.Position;
             target.UnitSprite.HitPercentagesDisplayed(true);
-            if (actor.PredatorComponent.FreeCap() < target.Bulk())
+            float cap = actor.PredatorComponent.FreeCap();
+            if (cap < target.Bulk()
+                && !(cap >= 1 && actor.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit 
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true), Color.yellow);
             else if (actor.Position.GetNumberOfMovesDistance(target.Position) <= 4 && actor.Position.GetNumberOfMovesDistance(target.Position) >= 2)
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true), Color.red);
@@ -3502,25 +3519,31 @@ Turns: {currentTurn}
                 {
                     unit.UnitSprite.AnimateBalls(unit.PredatorComponent.PreyNearLocation(PreyLocation.balls, true) * 0.0022f);
                 }
-                if (unit.PredatorComponent?.BreastFullness > 0 && unit.PredatorComponent?.AlivePrey > 0)
+                if (unit.PredatorComponent?.BreastFullness > 0 && unit.PredatorComponent?.AlivePrey > 0 && !Races.GetRace(unit.Unit.Race).ExtendedBreastSprites)
                 {
                     unit.UnitSprite.AnimateBoobs(unit.PredatorComponent.PreyNearLocation(PreyLocation.breasts, true) * 0.0022f);
                 }
-
-                if (unit.PredatorComponent?.LeftBreastFullness > 0 && unit.PredatorComponent?.AlivePrey > 0)
+                else
                 {
-                    if (Config.FairyBVType == FairyBVType.Shared)
+                    if (unit.PredatorComponent?.LeftBreastFullness > 0 && unit.PredatorComponent?.AlivePrey > 0)
                     {
-                    unit.UnitSprite.AnimateBoobs(unit.PredatorComponent.PreyNearLocation(PreyLocation.leftBreast, true) * 0.022f);
-                    unit.UnitSprite.AnimateSecondBoobs(unit.PredatorComponent.PreyNearLocation(PreyLocation.leftBreast, true) * 0.022f);
+                        if (Config.FairyBVType == FairyBVType.Shared)
+                        {
+                            unit.UnitSprite.AnimateBoobs(
+                                unit.PredatorComponent.PreyNearLocation(PreyLocation.leftBreast, true) * 0.022f);
+                            unit.UnitSprite.AnimateSecondBoobs(
+                                unit.PredatorComponent.PreyNearLocation(PreyLocation.leftBreast, true) * 0.022f);
+                        }
+                        else
+                            unit.UnitSprite.AnimateBoobs(
+                                unit.PredatorComponent.PreyNearLocation(PreyLocation.leftBreast, true) * 0.0022f);
                     }
-                    else
-                    unit.UnitSprite.AnimateBoobs(unit.PredatorComponent.PreyNearLocation(PreyLocation.leftBreast, true) * 0.0022f);
-                }
 
-                if (unit.PredatorComponent?.RightBreastFullness > 0 && unit.PredatorComponent?.AlivePrey > 0)
-                {
-                    unit.UnitSprite.AnimateSecondBoobs(unit.PredatorComponent.PreyNearLocation(PreyLocation.rightBreast, true) * 0.0022f);
+                    if (unit.PredatorComponent?.RightBreastFullness > 0 && unit.PredatorComponent?.AlivePrey > 0)
+                    {
+                        unit.UnitSprite.AnimateSecondBoobs(
+                            unit.PredatorComponent.PreyNearLocation(PreyLocation.rightBreast, true) * 0.0022f);
+                    }
                 }
             }
         }
@@ -3707,7 +3730,8 @@ Turns: {currentTurn}
                         case 3:
                             if (actor.Position.GetNumberOfMovesDistance(SelectedUnit.Position) < 2)
                             {
-                                if (SelectedUnit.PredatorComponent?.FreeCap() >= actor.Bulk())
+                                if (SelectedUnit.PredatorComponent?.FreeCap() >= actor.Bulk()
+                                    || (SelectedUnit.PredatorComponent?.FreeCap() >= 1 && SelectedUnit.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
                                 {
                                     string str = System.Math.Round(actor.GetDevourChance(SelectedUnit) * 100, 1) + "%";
                                     StatusUI.HitRate.text = str;
@@ -3720,7 +3744,8 @@ Turns: {currentTurn}
                         case 4:
                             if (actor.Position.GetNumberOfMovesDistance(SelectedUnit.Position) < 2)
                             {
-                                if (SelectedUnit.PredatorComponent?.FreeCap() >= actor.Bulk())
+                                if (SelectedUnit.PredatorComponent?.FreeCap() >= actor.Bulk()
+                                    || (SelectedUnit.PredatorComponent?.FreeCap() >= 1 && SelectedUnit.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
                                 {
                                     string str = System.Math.Round(actor.GetDevourChance(SelectedUnit) * 100, 1) + "%";
                                     StatusUI.HitRate.text = str;
@@ -4155,7 +4180,9 @@ Turns: {currentTurn}
         for (int i = 0; i < units.Count; i++)
         {
             Actor_Unit unit = units[i];
-            if (Config.EdibleCorpses && ActionMode == 3 && unit.Position.GetDistance(clickLocation) < 1 && unit.Targetable == false && unit.Visible && unit.Bulk() <= SelectedUnit.PredatorComponent.FreeCap())
+            if (Config.EdibleCorpses && ActionMode == 3 && unit.Position.GetDistance(clickLocation) < 1 && unit.Targetable == false && unit.Visible 
+                && (unit.Bulk() <= SelectedUnit.PredatorComponent.FreeCap()
+                    || (SelectedUnit.PredatorComponent?.FreeCap() >= 1 && SelectedUnit.Unit.HasTrait(Traits.ExtremelyStretchy)))) //personal edit
             {
                 var voreTypes = State.RaceSettings.GetVoreTypes(SelectedUnit.Unit.Race);
                 if (voreTypes.Contains(VoreType.Oral))
@@ -4164,7 +4191,9 @@ Turns: {currentTurn}
                     SelectedUnit.PredatorComponent.UsePreferredVore(unit);
                 ActionDone();
             }
-            else if (Config.EdibleCorpses && ActionMode == 4 && unit.Position.GetDistance(clickLocation) < 1 && unit.Targetable == false && unit.Visible && unit.Bulk() <= SelectedUnit.PredatorComponent.FreeCap())
+            else if (Config.EdibleCorpses && ActionMode == 4 && unit.Position.GetDistance(clickLocation) < 1 && unit.Targetable == false && unit.Visible 
+                     && (unit.Bulk() <= SelectedUnit.PredatorComponent.FreeCap() 
+                         || (SelectedUnit.PredatorComponent?.FreeCap() >= 1 && SelectedUnit.Unit.HasTrait(Traits.ExtremelyStretchy)))) //personal edit
             {
                 if (TakeSpecialAction(specialType, SelectedUnit, unit))
                 {
@@ -4832,9 +4861,9 @@ Turns: {currentTurn}
                     IEnumerable<DefenseEncampment> possible_camps = defenderBuildingsInRange.Where(b => b is DefenseEncampment).Cast<DefenseEncampment>();
                     if (possible_camps != null)
                     {
-                        DefenseEncampment camp = possible_camps.Where(d => d.maxDefenders > d.AvailibleDefenders).First();
+                        DefenseEncampment camp = possible_camps.Where(d => d.maxDefenders > d.AvailableDefenders).First();
                         if (camp != null)
-                            camp.AvailibleDefenders++;
+                            camp.AvailableDefenders++;
                     }
                     units.Remove(actor);
                     continue;
