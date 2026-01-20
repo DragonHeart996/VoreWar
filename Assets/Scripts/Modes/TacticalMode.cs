@@ -2349,7 +2349,10 @@ public class TacticalMode : SceneBase
                 continue;
             Vec2i pos = target.Position;
             target.UnitSprite.HitPercentagesDisplayed(true);
-            if (actor.PredatorComponent.FreeCap() < target.Bulk() || (actor.BodySize() < target.BodySize() * 3 && actor.Unit.HasTrait(Traits.TightNethers) && PreyLocationMethods.IsGenital(location)))
+            if (!actor.PredatorComponent.HasSpareCap(target.Bulk())
+                || (actor.Unit.HasTrait(Traits.TightNethers) 
+                    && actor.BodySize() < target.BodySize() * 3 
+                    && PreyLocationMethods.IsGenital(location)))
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true), Color.yellow);
             else if (actor.Unit.CanVore(location) != actor.PredatorComponent.CanVore(location,target))
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true), Color.yellow);
@@ -2378,7 +2381,10 @@ public class TacticalMode : SceneBase
                 continue;
             Vec2i pos = target.Position;
             target.UnitSprite.HitPercentagesDisplayed(true);
-            if (actor.PredatorComponent.FreeCap() < target.Bulk() || (actor.BodySize() < target.BodySize() * 3 && actor.Unit.HasTrait(Traits.TightNethers) && PreyLocationMethods.IsGenital(location)))
+            if (!actor.PredatorComponent.HasSpareCap(target.Bulk())
+                || (actor.Unit.HasTrait(Traits.TightNethers)
+                    && actor.BodySize() < target.BodySize() * 3 
+                    && PreyLocationMethods.IsGenital(location)))
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true, skillBoost), Color.yellow);
             else if (actor.Unit.CanVore(location) != actor.PredatorComponent.CanVore(location,target))
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true, skillBoost), Color.yellow);
@@ -2542,7 +2548,8 @@ public class TacticalMode : SceneBase
             {
                 if (actor.PredatorComponent.CanTransfer())
                 {
-                    if (target.PredatorComponent.FreeCap() < actor.PredatorComponent.TransferBulk() && !(target.Unit == actor.Unit))
+                    if (!target.PredatorComponent.HasSpareCap(actor.PredatorComponent.TransferBulk())
+                        && target.Unit != actor.Unit)
                         target.UnitSprite.DisplayHitPercentage(target.GetSpecialChance(SpecialAction.Transfer), Color.yellow);
                     else if (actor.Position.GetNumberOfMovesDistance(target.Position) < 2)
                         target.UnitSprite.DisplayHitPercentage(target.GetSpecialChance(SpecialAction.Transfer), Color.red);
@@ -2565,7 +2572,8 @@ public class TacticalMode : SceneBase
             {
                 if (actor.PredatorComponent.CanKissTransfer())
                 {
-                    if (target.PredatorComponent.FreeCap() < actor.PredatorComponent.KissTransferBulk() && !(target.Unit == actor.Unit))
+                    if (!target.PredatorComponent.HasSpareCap(actor.PredatorComponent.KissTransferBulk())
+                        && target.Unit != actor.Unit)
                         target.UnitSprite.DisplayHitPercentage(target.GetSpecialChance(SpecialAction.KissTransfer), Color.yellow);
                     else if ((actor.Position.GetNumberOfMovesDistance(target.Position) < 2) && !(target.Unit == actor.Unit))
                         target.UnitSprite.DisplayHitPercentage(target.GetSpecialChance(SpecialAction.KissTransfer), Color.red);
@@ -2583,7 +2591,8 @@ public class TacticalMode : SceneBase
         {
             if (!actor.PredatorComponent.CanVoreSteal(target))
                 continue;
-            if (actor.PredatorComponent.FreeCap() < target.PredatorComponent.StealBulk() && (target.Unit != actor.Unit))
+            if (!actor.PredatorComponent.HasSpareCap(target.PredatorComponent.StealBulk())
+                && target.Unit != actor.Unit)
                 target.UnitSprite.DisplayHitPercentage(target.PredatorComponent.GetVoreStealChance(actor), Color.yellow);
             else if ((actor.Position.GetNumberOfMovesDistance(target.Position) < 2) && (target.Unit != actor.Unit))
                 target.UnitSprite.DisplayHitPercentage(target.PredatorComponent.GetVoreStealChance(actor), Color.red);
@@ -2681,7 +2690,7 @@ public class TacticalMode : SceneBase
                 continue;
             Vec2i pos = target.Position;
             target.UnitSprite.HitPercentagesDisplayed(true);
-            if (actor.PredatorComponent.FreeCap() < target.Bulk())
+            if (!actor.PredatorComponent.HasSpareCap(target.Bulk()))
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true), Color.yellow);
             else if (actor.Position.GetNumberOfMovesDistance(target.Position) <= 4 && actor.Position.GetNumberOfMovesDistance(target.Position) >= 2)
                 target.UnitSprite.DisplayHitPercentage(target.GetDevourChance(actor, true), Color.red);
@@ -3616,7 +3625,7 @@ public class TacticalMode : SceneBase
                         case 3:
                             if (actor.Position.GetNumberOfMovesDistance(SelectedUnit.Position) < 2)
                             {
-                                if (SelectedUnit.PredatorComponent?.FreeCap() >= actor.Bulk())
+                                if (SelectedUnit.PredatorComponent?.HasSpareCap(actor.Bulk()) ?? false)
                                 {
                                     string str = System.Math.Round(actor.GetDevourChance(SelectedUnit) * 100, 1) + "%";
                                     StatusUI.HitRate.text = str;
@@ -3628,7 +3637,7 @@ public class TacticalMode : SceneBase
                         case 4:
                             if (actor.Position.GetNumberOfMovesDistance(SelectedUnit.Position) < 2)
                             {
-                                if (SelectedUnit.PredatorComponent?.FreeCap() >= actor.Bulk())
+                                if (SelectedUnit.PredatorComponent?.HasSpareCap(actor.Bulk()) ?? false)
                                 {
                                     string str = System.Math.Round(actor.GetDevourChance(SelectedUnit) * 100, 1) + "%";
                                     StatusUI.HitRate.text = str;
@@ -4036,7 +4045,8 @@ public class TacticalMode : SceneBase
         for (int i = 0; i < units.Count; i++)
         {
             Actor_Unit unit = units[i];
-            if (Config.EdibleCorpses && ActionMode == 3 && unit.Position.GetDistance(clickLocation) < 1 && unit.Targetable == false && unit.Visible && unit.Bulk() <= SelectedUnit.PredatorComponent.FreeCap())
+            if (Config.EdibleCorpses && ActionMode == 3 && unit.Position.GetDistance(clickLocation) < 1 && unit.Targetable == false && unit.Visible 
+                && (SelectedUnit?.PredatorComponent?.HasSpareCap(unit.Bulk()) ?? false))
             {
                 var voreTypes = State.RaceSettings.GetVoreTypes(SelectedUnit.Unit.Race);
                 if (voreTypes.Contains(VoreType.Oral))
@@ -4045,7 +4055,8 @@ public class TacticalMode : SceneBase
                     SelectedUnit.PredatorComponent.UsePreferredVore(unit);
                 ActionDone();
             }
-            else if (Config.EdibleCorpses && ActionMode == 4 && unit.Position.GetDistance(clickLocation) < 1 && unit.Targetable == false && unit.Visible && unit.Bulk() <= SelectedUnit.PredatorComponent.FreeCap())
+            else if (Config.EdibleCorpses && ActionMode == 4 && unit.Position.GetDistance(clickLocation) < 1 && unit.Targetable == false && unit.Visible 
+                     && (SelectedUnit?.PredatorComponent?.HasSpareCap(unit.Bulk()) ?? false))
             {
                 if (TakeSpecialAction(specialType, SelectedUnit, unit))
                 {

@@ -640,7 +640,13 @@ public enum Traits
     /// <summary>Doubles unit's absorption rate.</summary>
     FasterAbsorption = 280,
     /// <summary>Doubles unit's absorption rate.</summary>
-    Eeveeolutionist = 281
+    Eeveeolutionist = 281,
+    
+    //personal edits
+    /// <summary>Grants SweepingSwallow Attack</summary>
+    SweepingSwallow = 999,
+    /// <summary>Can attempt to eat anything so long as it has some space, also prevents overfeeding damage</summary>
+    ExtremelyStretchy = 998
 
 }
 
