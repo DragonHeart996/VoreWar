@@ -56,7 +56,8 @@ public class Actor_Unit
     [OdinSerialize]
     public Unit Unit { get; private set; }
     [OdinSerialize]
-    public Vec2i Position { get; private set; }
+    private Vec2i _position;
+	public Vec2i Position { get => SelfPrey?.Predator?.Position ?? _position; private set => _position = value; }
     [OdinSerialize]
     public int Movement;
     [OdinSerialize]
@@ -335,26 +336,16 @@ public class Actor_Unit
     /// This one is a dummy for some cases
     /// </summary>
     /// <param name="unit"></param>
-    public Actor_Unit(Unit unit)
-    {
-        unit.SetBreastSize(-1); //Resets to default
-        Mode = DisplayMode.None;
-        modeQueue = new List<KeyValuePair<int, float>>();
-        animationUpdateTime = 0;
-        Position = new Vec2i(0, 0);
-        Unit = unit;
-        Visible = true;
-        Targetable = true;
-    }
+    public Actor_Unit(Unit unit) : this(new Vec2i(0, 0), unit) { }
 
-    public Actor_Unit(Unit unit, Actor_Unit reciepient)
+    public Actor_Unit(Unit unit, Actor_Unit recipient)
     {
         PredatorComponent = new PredatorComponent(this, unit);
         unit.SetBreastSize(-1); //Resets to default
         Mode = DisplayMode.None;
         modeQueue = new List<KeyValuePair<int, float>>();
         animationUpdateTime = 0;
-        Position = reciepient.Position;
+        Position = recipient.Position;
         Unit = unit;
         Visible = false;
         Targetable = false;
@@ -543,7 +534,7 @@ public class Actor_Unit
         modeQueue.Add(new KeyValuePair<int, float>((int)displayMode, time));
     }
 
-    public void SetAbsorbtionMode()
+    public void SetAbsorptionMode()
     {
         if (Config.BurpOnDigest || Config.BurpFraction < .1f)
         {
@@ -1078,7 +1069,7 @@ public class Actor_Unit
             {
                 damageScalar *= 1.15f;
             }
-            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystaline))
+            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystalline))
             {
                 damageScalar *= 0.75f;
             }
@@ -1141,7 +1132,7 @@ public class Actor_Unit
             {
                 damageScalar *= 1.15f;
             }
-            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystaline))
+            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystalline))
             {
                 damageScalar *= 0.75f;
             }
@@ -1149,8 +1140,8 @@ public class Actor_Unit
             {
                 damageScalar *= 1.50f;
             }
-            if (target.Unit.GetStatusEffect(StatusEffectType.Errosion) != null)
-                damageScalar += damageScalar * (target.Unit.GetStatusEffect(StatusEffectType.Errosion).Strength / 5);
+            if (target.Unit.GetStatusEffect(StatusEffectType.Erosion) != null)
+                damageScalar += damageScalar * (target.Unit.GetStatusEffect(StatusEffectType.Erosion).Strength / 5);
 
             if (Unit.GetStatusEffect(StatusEffectType.Valor) != null)
             {
@@ -1668,7 +1659,7 @@ public class Actor_Unit
             int levelDiff = target.Unit.Level - Unit.Level;
             if (levelDiff < 0)
                 levelDiff = 0;
-            haplessChance += levelDiff / 20;
+            haplessChance += (float)levelDiff / 20;
             if (haplessChance >= State.Rand.NextDouble())
             {
                 Movement = 0;
@@ -1776,7 +1767,7 @@ public class Actor_Unit
                         target.Unit.AddTenacious();
                     if (target.Unit.GetStatusEffect(StatusEffectType.Focus) != null)                  
                         target.Unit.RemoveFocus();
-                    if (target.Unit.HasTrait(Traits.Crystaline) && State.Rand.Next(4) == 0)
+                    if (target.Unit.HasTrait(Traits.Crystalline) && State.Rand.Next(4) == 0)
                         target.Unit.ApplyStatusEffect(StatusEffectType.Fractured, 1, 1);
                     if (Unit.GetStatusEffect(StatusEffectType.Sharpness) != null)                  
                         Unit.RemoveStackStatus(StatusEffectType.Sharpness, Unit.GetStatusEffect(StatusEffectType.Sharpness).Duration / 2);
@@ -1884,7 +1875,7 @@ public class Actor_Unit
                         target.Unit.RemoveFocus();
                     if (target.Unit.HasTrait(Traits.Toxic) && State.Rand.Next(8) == 0)
                         Unit.ApplyStatusEffect(StatusEffectType.Poisoned, 2 + target.Unit.GetStat(Stat.Endurance) / 20, 3);
-                    if (target.Unit.HasTrait(Traits.Crystaline) && State.Rand.Next(4) == 0)
+                    if (target.Unit.HasTrait(Traits.Crystalline) && State.Rand.Next(4) == 0)
                         target.Unit.ApplyStatusEffect(StatusEffectType.Fractured, 1, 1);
                     if (Unit.HasTrait(Traits.ForcefulBlow))
                         TacticalUtilities.KnockBack(this, target);
@@ -2120,7 +2111,7 @@ public class Actor_Unit
 
         if (DefendSpellCheck(spell, attacker, out float chance))
         {
-            if (Unit.GetStatusEffect(StatusEffectType.Fractured) == null && Unit.HasTrait(Traits.Crystaline))
+            if (Unit.GetStatusEffect(StatusEffectType.Fractured) == null && Unit.HasTrait(Traits.Crystalline))
             {
                 Unit.TraitBoosts.Incoming.MagicDamage *= 0.75f;
             }
@@ -2141,7 +2132,7 @@ public class Actor_Unit
                     Unit.StatusEffects.Remove(charm);                // betrayal dispels charm
                 }
             }
-            if (Unit.HasTrait(Traits.Crystaline) && State.Rand.Next(4) == 0)
+            if (Unit.HasTrait(Traits.Crystalline) && State.Rand.Next(4) == 0)
                 Unit.ApplyStatusEffect(StatusEffectType.Fractured, 1, 1);
             if (attacker.Unit.HasTrait(Traits.ArcaneMagistrate))
             {
@@ -2544,38 +2535,21 @@ public class Actor_Unit
 
     public float BodySize()
     {
-        float size = State.RaceSettings.GetBodySize(Unit.Race);
-
-        size *= Unit.GetScale(2);
-
-        size *= Unit.TraitBoosts.BulkMultiplier;
-
-        if (Unit.GetStatusEffect(StatusEffectType.Petrify) != null)
-            size *= 3;
-
-        if (Unit.GetStatusEffect(StatusEffectType.Frozen) != null)
-            size *= 2;
-
-        return size;
+        return Unit.Bulk();
     }
 
     public float Bulk(int count = 0)
     {
         if (Unit.HasTrait(Traits.Inedible))
             return float.MaxValue / 100;
-        float bulk = 0;
-        bulk += PredatorComponent?.GetBulkOfPrey(count) ?? 0;
+		
+		float bulk = BodySize();
         if (Unit.IsDead)
         {
-            float myBulk = Unit.Health + Unit.MaxHealth;
-            myBulk = myBulk / (Unit.MaxHealth) * BodySize();
-
-            bulk += myBulk;
+            bulk *= Unit.Health + Unit.MaxHealth;
+			bulk /= Unit.MaxHealth;
         }
-        else
-        {
-            bulk += BodySize();
-        }
+        bulk += PredatorComponent?.GetBulkOfPrey(count) ?? 0;
         return bulk;
     }
 
