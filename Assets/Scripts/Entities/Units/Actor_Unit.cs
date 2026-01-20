@@ -308,15 +308,15 @@ public class Actor_Unit
             Unit.ApplyStatusEffect(StatusEffectType.Respawns, 1, 1);
         if (Unit.HasTrait(Traits.RespawnerIII) && (State.GameManager.TacticalMode.currentTurn == 1) && State.GameManager.TacticalMode.attackersTurnCheck == true)
             Unit.ApplyStatusEffect(StatusEffectType.Respawns, 3, 3);
-        int sizePenalty = (int)(PredatorComponent?.Fullness ?? 0);
-        sizePenalty = (int)(sizePenalty * Unit.TraitBoosts.SpeedLossFromWeightMultiplier);
+        float sizePenalty = (PredatorComponent?.Fullness ?? 0);                             //multiplicative speed penalty
+        sizePenalty = 1 - (sizePenalty * Unit.TraitBoosts.SpeedLossFromWeightMultiplier);   //works better for units with high base AP
         int bonus = 0;
         if (State.World?.ItemRepository != null && Unit.Items.Contains(State.World.ItemRepository.GetItem(ItemType.Shoes)))
             bonus += 1;
         bonus += Unit.TraitBoosts.SpeedBonus;
         if (Unit.HasTrait(Traits.Charge) && State.GameManager.TacticalMode.currentTurn <= 2)
             bonus += 4;
-        int total = Mathf.Max(bonus + 3 + ((int)Mathf.Pow(Unit.GetStat(Stat.Agility) / 4, .8f)) - sizePenalty, 1);
+        int total = Mathf.Max((int)((bonus + 3 + Mathf.Pow(Unit.GetStat(Stat.Agility) / 4f, .8f)) * sizePenalty), 1);  //personal edit - multiplicative speed penalty
         var speed = Unit.GetStatusEffect(StatusEffectType.Fast);
         if (speed != null)
         {
