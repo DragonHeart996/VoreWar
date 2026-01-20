@@ -1359,7 +1359,9 @@ public class Actor_Unit
             return false;
         if (TacticalUtilities.AppropriateVoreTarget(this, target) == false)
             return false;
-        if (PredatorComponent.FreeCap() < target.Bulk())
+        float cap = PredatorComponent.FreeCap();
+        if ((cap < target.Bulk()
+             && !(cap >= 1 && Unit.HasTrait(Traits.ExtremelyStretchy)))) //personal edit
             return false;
         var pounceLandingZone = PounceAt(target);
         if (pounceLandingZone != null)
@@ -1506,10 +1508,58 @@ public class Actor_Unit
             }
         }
     }
+    
+    public bool AiSweepAttack(Actor_Unit mainTarget, Actor_Unit self, bool attack_ver)
+    {
+        if (Movement < 1 
+            || (attack_ver && !TacticalActionList.TargetedDictionary[SpecialAction.GiantSweep].AppearConditional(this)) 
+            || (!attack_ver && !TacticalActionList.TargetedDictionary[SpecialAction.SweepingSwallow].AppearConditional(this)))
+            return false;
+        if (!Unit.SpendMana(40))
+        {
+            return false;
+        }
+        List<Actor_Unit> targets = TacticalUtilities.UnitsWithinPattern(self.Position, new int[3, 3] { { 1, 1, 1 }, { 1, 0, 1 }, { 1, 1, 1 } });
+        List<AbilityTargets> targetTypes = new List<AbilityTargets> { AbilityTargets.Enemy };
+
+        foreach (var target in targets)
+        {
+            if (!TacticalUtilities.MeetsQualifier(targetTypes, this, target))
+                continue;
+            if (attack_ver)
+                TestAttack(target);
+            else
+                TestSwallow(target);
+        }
+
+        Movement = 0;
+
+        return true;
+
+        void TestAttack(Actor_Unit sideTarget)
+        {
+            if (sideTarget != null && sideTarget.Position.GetNumberOfMovesDistance(Position) == 1)
+            {
+                Movement = 1;
+                Attack(sideTarget, false, damageMultiplier: .66f);
+            }
+        }
+        void TestSwallow(Actor_Unit sideTarget)
+        {
+            if (sideTarget != null && sideTarget.Position.GetNumberOfMovesDistance(Position) == 1)
+            {
+                Movement = 1;
+                PredatorComponent.Devour(sideTarget);
+
+            }
+        }
+    }
 
     public bool SweepAttack(bool attack_ver)
     {
-        if (Movement < 1 || Unit.HasTrait(Traits.Legendary) == false)
+        if (Movement < 1 
+            || (attack_ver && !TacticalActionList.TargetedDictionary[SpecialAction.GiantSweep].AppearConditional(this)) 
+            || (!attack_ver && !TacticalActionList.TargetedDictionary[SpecialAction.SweepingSwallow].AppearConditional(this)))
             return false;
         if (!Unit.SpendMana(40))
         {
@@ -1522,7 +1572,7 @@ public class Actor_Unit
         foreach (var target in targets)
         {
             if (!TacticalUtilities.MeetsQualifier(targetTypes, this, target))
-                return false;
+                continue;
             if (attack_ver)
                 TestAttack(target);
             else
@@ -1557,7 +1607,9 @@ public class Actor_Unit
             return false;
         if (TacticalUtilities.AppropriateVoreTarget(this, target) == false)
             return false;
-        if (PredatorComponent.FreeCap() < target.Bulk())
+        float cap = PredatorComponent.FreeCap();
+        if (cap < target.Bulk()
+            && !(cap >= 1 && Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit)
             return false;
         if (target.Position.GetNumberOfMovesDistance(Position) > 1)
             return false;

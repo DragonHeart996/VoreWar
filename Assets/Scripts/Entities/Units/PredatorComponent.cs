@@ -1780,7 +1780,7 @@ public class PredatorComponent
             AlivePrey++;
             preyUnit.UpdateEscapeRate();
             float escapeMult = 1;
-            if (FreeCap() < 0)
+            if (FreeCap() < 0 && !unit.HasTrait(Traits.ExtremelyStretchy))
             {
                 float cap = TotalCapacity();
                 escapeMult = 1.4f + 2 * ((Fullness / cap) - 1);
@@ -2567,7 +2567,9 @@ public class PredatorComponent
             return false;
         }
 
-        if (target.Bulk() <= FreeCap())
+        float cap = FreeCap();
+        if (target.Bulk() <= cap 
+            || (cap >= 1 && actor.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
         {
             //actor.SetPredMode(preyType);
             float r = (float)State.Rand.NextDouble();
@@ -2639,7 +2641,9 @@ public class PredatorComponent
             return false;
         if (unit.CanVore(preyType) != CanVore(preyType, target))
             return false;
-        if (target.Bulk() <= FreeCap() && (actor.BodySize() >= target.BodySize() * 3 || !actor.Unit.HasTrait(Traits.TightNethers) || (preyType != PreyLocation.womb && preyType != PreyLocation.balls)))
+        float cap = FreeCap();
+        if ((target.Bulk() <= cap && (actor.BodySize() >= target.BodySize() * 3 || !actor.Unit.HasTrait(Traits.TightNethers) || (preyType != PreyLocation.womb && preyType != PreyLocation.balls)))
+            || (cap >= 1 && actor.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
         {
             bool bit = false;
             if (target.Unit.HasTrait(Traits.Dazzle) && target.Surrendered == false)
@@ -3839,7 +3843,10 @@ public class PredatorComponent
             return false;
         }
         Prey transfer = GetTransfer();
-        if (target.PredatorComponent.FreeCap() < transfer.Actor.Bulk() && !(target.Unit == actor.Unit))
+        float cap = target.PredatorComponent.FreeCap();
+        if ((cap < transfer.Actor.Bulk() 
+             && !(cap >= 1 && target.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
+            && !(target.Unit == actor.Unit))
         {
             return false;
         }
@@ -3878,7 +3885,10 @@ public class PredatorComponent
             return false;
         }
         Prey transfer = GetKissTransfer();
-        if (target.PredatorComponent.FreeCap() < transfer.Actor.Bulk() && !(target.Unit == actor.Unit))
+        float cap = target.PredatorComponent.FreeCap();
+        if ((cap < transfer.Actor.Bulk()
+             && !(cap >= 1 && target.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
+            && !(target.Unit == actor.Unit))
         {
             return false;
         }
@@ -3913,7 +3923,10 @@ public class PredatorComponent
         Prey transfer = GetVoreSteal(target);
         if (transfer == null)
             return false;
-        if (FreeCap() < transfer.Actor.Bulk() && target.Unit != actor.Unit)
+        float cap = FreeCap();
+        if ((cap < transfer.Actor.Bulk()
+             && !(cap >= 1 && actor.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
+            && target.Unit != actor.Unit)
         {
             return false;
         }
