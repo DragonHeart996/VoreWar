@@ -131,8 +131,8 @@ public class TacticalMode : SceneBase
     internal DecorationStorage[] DecorationStorage;
     internal PlacedDecoration[] Decorations;
 
-    int defenderSide;
-    int attackerSide;
+    public int defenderSide;
+    public int attackerSide;
 
     internal bool DirtyPack = true;
 
@@ -3306,7 +3306,7 @@ public class TacticalMode : SceneBase
         }
     }
 
-    void RetreatUnit(Actor_Unit actor, bool defender)
+    public void RetreatUnit(Actor_Unit actor, bool defender)
     {
         if (defender)
         {

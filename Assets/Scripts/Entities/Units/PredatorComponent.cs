@@ -860,9 +860,8 @@ public class PredatorComponent
             }
             else
             {
-                Debug.Log("Couldn't place prey anywhere in a 5x5 ... killing unit");
-                preyUnit.Unit.Health = -99;
-                return;
+                Debug.Log("Couldn't place prey anywhere on the map; setting as fled");
+                State.GameManager.TacticalMode.RetreatUnit(preyUnit.Actor, preyUnit.Actor.Unit.FixedSide == State.GameManager.TacticalMode.defenderSide);
             }
         }
         else
@@ -2679,7 +2678,7 @@ public class PredatorComponent
                     StatusEffect charm = target.Unit.GetStatusEffect(StatusEffectType.Charmed);
                     if (charm != null)
                     {
-                        target.Unit.StatusEffects.Remove(charm);                // betrayal dispels charm
+                        target.Unit.StatusEffects.Remove(charm); // betrayal dispels charm
                     }
                 }
                 if (!State.GameManager.TacticalMode.turboMode)
