@@ -2232,6 +2232,8 @@ public class PredatorComponent
                 if (actor.Unit.Race == Race.Kangaroos)
                     stomachFullness += preyUnit.Actor.Bulk();
                 breastFullness += preyUnit.Actor.Bulk();
+                leftBreastFullness += preyUnit.Actor.Bulk() / 2;    //to handle changeling
+                rightBreastFullness += preyUnit.Actor.Bulk() / 2;   //to handle changeling
             }
             else if (location == PreyLocation.balls)
             {
@@ -2248,10 +2250,12 @@ public class PredatorComponent
             else if (location == PreyLocation.leftBreast)
             {
                 leftBreastFullness += preyUnit.Actor.Bulk();
+                breastFullness += preyUnit.Actor.Bulk();        //to handle changeling
             }
             else if (location == PreyLocation.rightBreast)
             {
                 rightBreastFullness += preyUnit.Actor.Bulk();
+                breastFullness += preyUnit.Actor.Bulk();        //to handle changeling
             }
             else
             {
