@@ -3107,7 +3107,7 @@ static class RaceParameters
                 Traits.Brainless,
                 Traits.Fearless,
                 Traits.Replaceable,
-                Traits.Crystaline,
+                Traits.Crystalline,
                 Traits.DimensionalAntilock,
                 Traits.DyingStrike,
                 Traits.TotalAbsorption,
@@ -3699,7 +3699,7 @@ static class RaceParameters
                 Traits.ColdTolerance,
             },
             InnateSpells = new List<SpellTypes>() { SpellTypes.IceBlast },
-            RaceDescription = "A hybrid between a dragon and salamander whom excels in climbing and swimming but lacks any wings for flight.",
+            RaceDescription = "A hybrid between a dragon and salamander who excels in climbing and swimming but lacks any wings for flight.",
 
         };
 
@@ -4031,7 +4031,7 @@ static class RaceParameters
             },
             InnateSpells = new List<SpellTypes>()
             { SpellTypes.DivinitysEmbrace },
-            RaceDescription = "Erin belongs to a very rare species known as a Nyangel, the lovechild of an angel and a catgirl.  Thanks to this divine heritage they aremostly all incredible healers... But they're also incredibly tasty.  Every Nyangel has a unique trait to set them apart from eachother, and Erin is no exception to this rule.  Her quirk is total acid resistance, the perfect defense against the raveous predators of this realm.  That doesn't stop her from being devoured, however, and that is unfortunately an all-too-common outcome for the girl.  Regardless of how many times she ends up eaten, the loveable Nyangel still tries her best to heal those she can.",
+            RaceDescription = "Erin belongs to a very rare species known as a Nyangel, the lovechild of an angel and a catgirl.  Thanks to this divine heritage they are mostly all incredible healers... But they're also incredibly tasty.  Every Nyangel has a unique trait to set them apart from eachother, and Erin is no exception to this rule.  Her quirk is total acid resistance, the perfect defense against the raveous predators of this realm.  That doesn't stop her from being devoured, however, and that is unfortunately an all-too-common outcome for the girl.  Regardless of how many times she ends up eaten, the loveable Nyangel still tries her best to heal those she can.",
         };
 
         
@@ -4370,7 +4370,7 @@ static class RaceParameters
             Traits.QuickShooter,
             Traits.Prey,//Perma-prey until vore sprites added
         },
-            RaceDescription = "An unnatural Umbreon from a different universe from the others. His body shape seems different than the Umbreons, Having a differently shaped head, digigrade legs, and a fox like appearance. He claims to come from a realm where the world was much more advanced, having been transported with what he calls a \"HND15\" some kind of \"handgun\" similar to the tarous' revolvers. Being from another realm these bullets are in short supply, forcing him to save the magazines and to forge new bullets to load into them. He also carries around a knife for backup, it seems extra sharp compared to the others of it's kind. Although he prefers to stick along side them, He claims to not be related to the Anthro Umbreons that roam around.",
+            RaceDescription = "An unnatural Umbreon from a different universe from the others. His body shape seems different than the Umbreons, Having a differently shaped head, digigrade legs, and a fox like appearance. He claims to come from a realm where the world was much more advanced, having been transported with what he calls a \"HND15\" some kind of \"handgun\" similar to the taurus' revolvers. Being from another realm these bullets are in short supply, forcing him to save the magazines and to forge new bullets to load into them. He also carries around a knife for backup, it seems extra sharp compared to the others of its kind. Although he prefers to stick along side them, he claims to not be related to the Anthro Umbreons that roam around.",
         };
 
         Nectar = new RaceTraits()
