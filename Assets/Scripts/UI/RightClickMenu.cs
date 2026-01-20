@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -389,7 +389,10 @@ public class RightClickMenu : MonoBehaviour
                     if (data.Range != 1)
                         Buttons[currentButton].interactable = false;
                 }
-                if (data.Actor.PredatorComponent.FreeCap() < data.Target.Bulk())
+
+                float cap = data.Actor.PredatorComponent.FreeCap();
+                if (cap < data.Target.Bulk()
+                    && !(cap >= 1 && data.Actor.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
                 {
                     Buttons[currentButton].GetComponentInChildren<Text>().text = $"Too bulky to vore";
                     Buttons[currentButton].interactable = false;
@@ -432,7 +435,9 @@ public class RightClickMenu : MonoBehaviour
                     if (data.Range != 1)
                         Buttons[currentButton].interactable = false;
                 }
-                if (data.Actor.PredatorComponent.FreeCap() < data.Target.Bulk())
+                float cap = data.Actor.PredatorComponent.FreeCap();
+                if (cap < data.Target.Bulk()
+                    && !(cap >= 1 && data.Actor.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
                 {
                     Buttons[currentButton].GetComponentInChildren<Text>().text = $"Too bulky to {targetedAction.Name}";
                     Buttons[currentButton].interactable = false;
@@ -549,7 +554,9 @@ public class RightClickMenu : MonoBehaviour
             {
                 PounceButtons[currentButton].onClick.AddListener(() => actor.VorePounce(target));
                 PounceButtons[currentButton].onClick.AddListener(FinishAction);
-                if (data.Actor.PredatorComponent.FreeCap() < data.Target.Bulk())
+                float cap = data.Actor.PredatorComponent.FreeCap();
+                if (cap < data.Target.Bulk()
+                    && !(cap >= 1 && data.Actor.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
                 {
                     PounceButtons[currentButton].GetComponentInChildren<Text>().text = $"Too bulky to vore";
                     PounceButtons[currentButton].interactable = false;
@@ -580,7 +587,9 @@ public class RightClickMenu : MonoBehaviour
             {
                 PounceButtons[currentButton].onClick.AddListener(() => data.Actor.VorePounce(data.Target, type));
                 PounceButtons[currentButton].onClick.AddListener(FinishAction);
-                if (data.Actor.PredatorComponent.FreeCap() < data.Target.Bulk())
+                float cap = data.Actor.PredatorComponent.FreeCap();
+                if (cap < data.Target.Bulk()
+                    && !(cap >= 1 && data.Actor.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
                 {
                     PounceButtons[currentButton].GetComponentInChildren<Text>().text = $"Too bulky to {targetedAction.Name}";
                     PounceButtons[currentButton].interactable = false;
@@ -633,7 +642,9 @@ public class RightClickMenu : MonoBehaviour
                     Buttons[currentButton].onClick.AddListener(() => data.Actor.PredatorComponent.TransferAttempt(data.Target));
                     Buttons[currentButton].onClick.AddListener(FinishAction);
                     Buttons[currentButton].GetComponentInChildren<Text>().text = $"Transfer";
-                    if (data.Target.PredatorComponent.FreeCap() < actor.PredatorComponent.GetTransferBulk())
+                    float cap = data.Target.PredatorComponent.FreeCap();
+                    if (cap < actor.PredatorComponent.GetTransferBulk()
+                        && !(cap >= 1 && data.Target.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
                     {
                         Buttons[currentButton].GetComponentInChildren<Text>().text = $"Too bulky to Transfer";
                         Buttons[currentButton].interactable = false;
@@ -645,7 +656,9 @@ public class RightClickMenu : MonoBehaviour
                     Buttons[currentButton].onClick.AddListener(() => data.Actor.PredatorComponent.KissTransferAttempt(data.Target));
                     Buttons[currentButton].onClick.AddListener(FinishAction);
                     Buttons[currentButton].GetComponentInChildren<Text>().text = $"Kiss Transfer";
-                    if (data.Target.PredatorComponent.FreeCap() < actor.PredatorComponent.GetKissTransferBulk())
+                    float cap = data.Target.PredatorComponent.FreeCap();
+                    if (cap < actor.PredatorComponent.GetKissTransferBulk()
+                        && !(cap >= 1 && data.Target.Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit
                     {
                         Buttons[currentButton].GetComponentInChildren<Text>().text = $"Too bulky to Transfer";
                         Buttons[currentButton].interactable = false;
