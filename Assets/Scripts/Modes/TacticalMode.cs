@@ -5459,7 +5459,7 @@ public class TacticalMode : SceneBase
                 }
             }
             army.RecalculateSizeValue();
-            if (army.RemainnigSize < 0)
+            if (army.RemainingSize < 0)
             {
                 while (!StrategicUtilities.ArmyCanFitUnit(army, army.Units.OrderByDescending(u => State.RaceSettings.GetDeployCost(u.Race) * u.TraitBoosts.DeployCostMult).First()))
                 {
