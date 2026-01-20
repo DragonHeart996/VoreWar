@@ -307,15 +307,17 @@ public class Actor_Unit
             Unit.ApplyStatusEffect(StatusEffectType.Respawns, 1, 1);
         if (Unit.HasTrait(Traits.RespawnerIII) && (State.GameManager.TacticalMode.currentTurn == 1) && State.GameManager.TacticalMode.attackersTurnCheck == true)
             Unit.ApplyStatusEffect(StatusEffectType.Respawns, 3, 3);
-        int sizePenalty = (int)(PredatorComponent?.Fullness ?? 0);
-        sizePenalty = (int)(sizePenalty * Unit.TraitBoosts.SpeedLossFromWeightMultiplier);
+        //int sizePenalty = (int)(PredatorComponent?.Fullness ?? 0);
+        //sizePenalty = (int)(sizePenalty * Unit.TraitBoosts.SpeedLossFromWeightMultiplier);
+        float sizePenalty = (PredatorComponent?.Fullness ?? 0);                             //personal edit
+        sizePenalty = 1 - (sizePenalty * Unit.TraitBoosts.SpeedLossFromWeightMultiplier);   //multiplicative speed penalty
         int bonus = 0;
         if (State.World?.ItemRepository != null && Unit.Items.Contains(State.World.ItemRepository.GetItem(ItemType.Shoes)))
             bonus += 1;
         bonus += Unit.TraitBoosts.SpeedBonus;
         if (Unit.HasTrait(Traits.Charge) && State.GameManager.TacticalMode.currentTurn <= 2)
             bonus += 4;
-        int total = Mathf.Max(bonus + 3 + ((int)Mathf.Pow(Unit.GetStat(Stat.Agility) / 4, .8f)) - sizePenalty, 1);
+        int total = Mathf.Max((int)((bonus + 3 + Mathf.Pow(Unit.GetStat(Stat.Agility) / 4f, .8f)) * sizePenalty), 1);  //personal edit - multiplicative speed penalty
         var speed = Unit.GetStatusEffect(StatusEffectType.Fast);
         if (speed != null)
         {
@@ -543,7 +545,7 @@ public class Actor_Unit
         modeQueue.Add(new KeyValuePair<int, float>((int)displayMode, time));
     }
 
-    public void SetAbsorbtionMode()
+    public void SetAbsorptionMode()
     {
         if (Config.BurpOnDigest || Config.BurpFraction < .1f)
         {
@@ -1078,7 +1080,7 @@ public class Actor_Unit
             {
                 damageScalar *= 1.15f;
             }
-            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystaline))
+            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystalline))
             {
                 damageScalar *= 0.75f;
             }
@@ -1141,7 +1143,7 @@ public class Actor_Unit
             {
                 damageScalar *= 1.15f;
             }
-            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystaline))
+            if (target.Unit.GetStatusEffect(StatusEffectType.Fractured) == null && target.Unit.HasTrait(Traits.Crystalline))
             {
                 damageScalar *= 0.75f;
             }
@@ -1149,8 +1151,8 @@ public class Actor_Unit
             {
                 damageScalar *= 1.50f;
             }
-            if (target.Unit.GetStatusEffect(StatusEffectType.Errosion) != null)
-                damageScalar += damageScalar * (target.Unit.GetStatusEffect(StatusEffectType.Errosion).Strength / 5);
+            if (target.Unit.GetStatusEffect(StatusEffectType.Erosion) != null)
+                damageScalar += damageScalar * (target.Unit.GetStatusEffect(StatusEffectType.Erosion).Strength / 5);
 
             if (Unit.GetStatusEffect(StatusEffectType.Valor) != null)
             {
@@ -1368,7 +1370,9 @@ public class Actor_Unit
             return false;
         if (TacticalUtilities.AppropriateVoreTarget(this, target) == false)
             return false;
-        if (PredatorComponent.FreeCap() < target.Bulk())
+        float cap = PredatorComponent.FreeCap();
+        if ((cap < target.Bulk()
+             && !(cap >= 1 && Unit.HasTrait(Traits.ExtremelyStretchy)))) //personal edit
             return false;
         var pounceLandingZone = PounceAt(target);
         if (pounceLandingZone != null)
@@ -1516,9 +1520,55 @@ public class Actor_Unit
         }
     }
 
+    public bool AiSweepAttack(Actor_Unit mainTarget, Actor_Unit self, bool attack_ver)
+    {
+        if (Movement < 1 
+            || (attack_ver && !TacticalActionList.TargetedDictionary[SpecialAction.GiantSweep].AppearConditional(this)) 
+            || (!attack_ver && !TacticalActionList.TargetedDictionary[SpecialAction.SweepingSwallow].AppearConditional(this)))
+            return false;
+        if (!Unit.SpendMana(40))
+        {
+            return false;
+        }
+        List<Actor_Unit> targets = TacticalUtilities.UnitsWithinPattern(self.Position, new int[3, 3] { { 1, 1, 1 }, { 1, 0, 1 }, { 1, 1, 1 } });
+        List<AbilityTargets> targetTypes = new List<AbilityTargets> { AbilityTargets.Enemy };
+
+        foreach (var target in targets)
+        {
+            if (!TacticalUtilities.MeetsQualifier(targetTypes, this, target))
+                continue;
+            if (attack_ver)
+                TestAttack(target);
+            else
+                TestSwallow(target);
+        }
+
+        Movement = 0;
+
+        return true;
+
+        void TestAttack(Actor_Unit sideTarget)
+        {
+            if (sideTarget != null && sideTarget.Position.GetNumberOfMovesDistance(Position) == 1)
+            {
+                Movement = 1;
+                Attack(sideTarget, false, damageMultiplier: .66f);
+            }
+        }
+        void TestSwallow(Actor_Unit sideTarget)
+        {
+            if (sideTarget != null && sideTarget.Position.GetNumberOfMovesDistance(Position) == 1)
+            {
+                Movement = 1;
+                PredatorComponent.Devour(sideTarget);
+
+            }
+        }
+    }
+
     public bool SweepAttack(bool attack_ver)
     {
-        if (Movement < 1 || Unit.HasTrait(Traits.Legendary) == false)
+        if (Movement < 1 || (!Unit.HasTrait(Traits.Legendary) && (attack_ver || !Unit.HasTrait(Traits.SweepingSwallow))))
             return false;
         if (!Unit.SpendMana(40))
         {
@@ -1531,7 +1581,7 @@ public class Actor_Unit
         foreach (var target in targets)
         {
             if (!TacticalUtilities.MeetsQualifier(targetTypes, this, target))
-                return false;
+                continue;
             if (attack_ver)
                 TestAttack(target);
             else
@@ -1566,7 +1616,9 @@ public class Actor_Unit
             return false;
         if (TacticalUtilities.AppropriateVoreTarget(this, target) == false)
             return false;
-        if (PredatorComponent.FreeCap() < target.Bulk())
+        float cap = PredatorComponent.FreeCap();
+        if (cap < target.Bulk()
+            && !(cap >= 1 && Unit.HasTrait(Traits.ExtremelyStretchy))) //personal edit)
             return false;
         if (target.Position.GetNumberOfMovesDistance(Position) > 1)
             return false;
@@ -1776,7 +1828,7 @@ public class Actor_Unit
                         target.Unit.AddTenacious();
                     if (target.Unit.GetStatusEffect(StatusEffectType.Focus) != null)                  
                         target.Unit.RemoveFocus();
-                    if (target.Unit.HasTrait(Traits.Crystaline) && State.Rand.Next(4) == 0)
+                    if (target.Unit.HasTrait(Traits.Crystalline) && State.Rand.Next(4) == 0)
                         target.Unit.ApplyStatusEffect(StatusEffectType.Fractured, 1, 1);
                     if (Unit.GetStatusEffect(StatusEffectType.Sharpness) != null)                  
                         Unit.RemoveStackStatus(StatusEffectType.Sharpness, Unit.GetStatusEffect(StatusEffectType.Sharpness).Duration / 2);
@@ -1884,7 +1936,7 @@ public class Actor_Unit
                         target.Unit.RemoveFocus();
                     if (target.Unit.HasTrait(Traits.Toxic) && State.Rand.Next(8) == 0)
                         Unit.ApplyStatusEffect(StatusEffectType.Poisoned, 2 + target.Unit.GetStat(Stat.Endurance) / 20, 3);
-                    if (target.Unit.HasTrait(Traits.Crystaline) && State.Rand.Next(4) == 0)
+                    if (target.Unit.HasTrait(Traits.Crystalline) && State.Rand.Next(4) == 0)
                         target.Unit.ApplyStatusEffect(StatusEffectType.Fractured, 1, 1);
                     if (Unit.HasTrait(Traits.ForcefulBlow))
                         TacticalUtilities.KnockBack(this, target);
@@ -2120,7 +2172,7 @@ public class Actor_Unit
 
         if (DefendSpellCheck(spell, attacker, out float chance))
         {
-            if (Unit.GetStatusEffect(StatusEffectType.Fractured) == null && Unit.HasTrait(Traits.Crystaline))
+            if (Unit.GetStatusEffect(StatusEffectType.Fractured) == null && Unit.HasTrait(Traits.Crystalline))
             {
                 Unit.TraitBoosts.Incoming.MagicDamage *= 0.75f;
             }
@@ -2141,7 +2193,7 @@ public class Actor_Unit
                     Unit.StatusEffects.Remove(charm);                // betrayal dispels charm
                 }
             }
-            if (Unit.HasTrait(Traits.Crystaline) && State.Rand.Next(4) == 0)
+            if (Unit.HasTrait(Traits.Crystalline) && State.Rand.Next(4) == 0)
                 Unit.ApplyStatusEffect(StatusEffectType.Fractured, 1, 1);
             if (attacker.Unit.HasTrait(Traits.ArcaneMagistrate))
             {
@@ -2544,38 +2596,21 @@ public class Actor_Unit
 
     public float BodySize()
     {
-        float size = State.RaceSettings.GetBodySize(Unit.Race);
-
-        size *= Unit.GetScale(2);
-
-        size *= Unit.TraitBoosts.BulkMultiplier;
-
-        if (Unit.GetStatusEffect(StatusEffectType.Petrify) != null)
-            size *= 3;
-
-        if (Unit.GetStatusEffect(StatusEffectType.Frozen) != null)
-            size *= 2;
-
-        return size;
+        return Unit.Bulk();
     }
 
     public float Bulk(int count = 0)
     {
         if (Unit.HasTrait(Traits.Inedible))
             return float.MaxValue / 100;
-        float bulk = 0;
-        bulk += PredatorComponent?.GetBulkOfPrey(count) ?? 0;
+		
+		float bulk = BodySize();
         if (Unit.IsDead)
         {
-            float myBulk = Unit.Health + Unit.MaxHealth;
-            myBulk = myBulk / (Unit.MaxHealth) * BodySize();
-
-            bulk += myBulk;
+            bulk *= Unit.Health + Unit.MaxHealth;
+			bulk /= Unit.MaxHealth;
         }
-        else
-        {
-            bulk += BodySize();
-        }
+        bulk += PredatorComponent?.GetBulkOfPrey(count) ?? 0;
         return bulk;
     }
 
