@@ -189,15 +189,14 @@ public class Army
                     unit.SetDefaultBreastSize(unit.DefaultBreastSize - 1);
                 if (unit.DickSize > 0 && State.Rand.NextDouble() < Config.WeightLossFractionDick)
                     unit.DickSize--;
-
             }
-            if (unit.HasTrait(Traits.Growth) && unit.BaseScale > 1 && !unit.HasTrait(Traits.PermanentGrowth))
+			if (unit.HasTrait(Traits.Growth))
             {
-                float extremum = -(Config.GrowthDecayOffset - Config.GrowthDecayIncreaseRate - 1 / 2 * Config.GrowthDecayIncreaseRate);
-                if (unit.BaseScale > extremum)
-                    unit.BaseScale -= extremum - (extremum * ((1 - Config.GrowthDecayOffset) - Config.GrowthDecayIncreaseRate * (extremum - 1)));     // force the decay function to be monotonous
-                else
-                    unit.BaseScale = Math.Max(1, unit.BaseScale * ((1 - Config.GrowthDecayOffset) - Config.GrowthDecayIncreaseRate * (unit.BaseScale - 1)));  // default decayIncreaseRate = 0.04f
+				double bulkMultiplier = Math.Pow(unit.BaseScale, 2);
+                double decrement = Config.GrowthDecayOffset + Config.GrowthDecayIncreaseRate * (bulkMultiplier - 1);
+                decrement *= unit.TraitBoosts.GrowthDecayRate;
+                bulkMultiplier -= decrement;
+                unit.BaseScale = Math.Sqrt(bulkMultiplier);
             }
             EquipmentFunctions.TickCoolDown(unit, EquipmentType.RechargeStrategy);
             EquipmentFunctions.CheckEquipment(unit, EquipmentActivator.OnStrategicTurnStart, new object[] { unit, this, null });
