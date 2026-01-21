@@ -2648,9 +2648,9 @@ public class TacticalMode : SceneBase
             return;
         foreach (Actor_Unit target in units)
         {
-            if (actor.PredatorComponent.GetSuckle(target)[0] == 0)
-                continue;
-            else if (actor.Position.GetNumberOfMovesDistance(target.Position) == 1)
+            if (actor.PredatorComponent.GetSuckle(target)[0] + actor.PredatorComponent.GetSuckle(target)[1] == 0)
+                continue; 
+            if (actor.Position.GetNumberOfMovesDistance(target.Position) == 1)
                 target.UnitSprite.DisplayHitPercentage(actor.PredatorComponent.GetSuckleChance(target), Color.red);
             else
                 target.UnitSprite.DisplayHitPercentage(actor.PredatorComponent.GetSuckleChance(target), Color.black);
