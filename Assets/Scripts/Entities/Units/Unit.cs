@@ -1554,19 +1554,16 @@ internal void SetGenderRandomizeName(Race race, Gender gender)
     {
         get
         {
-            if (PermanentTraits == null)
-                return Tags.ToList();
-            if (SharedTraits == null)
-            {
-                if (ActiveConditionalTraits == null)              
-                    return Tags.Concat(PermanentTraits).ToList();
-                return Tags.Concat(PermanentTraits).ToList().Concat(ActiveConditionalTraits).ToList();
-            }
-            if (ActiveConditionalTraits == null)
-            {
-                return Tags.Concat(PermanentTraits).ToList().Concat(SharedTraits).ToList();
-            }
-            return Tags.Concat(PermanentTraits).ToList().Concat(SharedTraits).ToList().Concat(ActiveConditionalTraits).ToList();
+            List<Traits> traits = new List<Traits>();
+            if (Tags != null)
+                traits = traits.Concat(Tags).ToList();
+            if (PermanentTraits != null)
+                traits = traits.Concat(PermanentTraits).ToList();
+            if (SharedTraits != null)
+                traits = traits.Concat(SharedTraits).ToList();
+            if (ActiveConditionalTraits != null)
+                traits = traits.Concat(ActiveConditionalTraits).ToList();
+            return traits;
         }
     }
 
