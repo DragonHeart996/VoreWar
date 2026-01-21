@@ -672,7 +672,8 @@ public class RightClickMenu : MonoBehaviour
             {
                 Buttons[currentButton].onClick.AddListener(() => data.Actor.PredatorComponent.Suckle(data.Target));
                 Buttons[currentButton].onClick.AddListener(FinishAction);
-                Buttons[currentButton].GetComponentInChildren<Text>().text = $"Suckle";
+                float chance = Mathf.Round(100 * actor.PredatorComponent.GetSuckleChance(data.Target));
+                Buttons[currentButton].GetComponentInChildren<Text>().text = $"Suckle {chance}%";
                 currentButton++;
             }
         }
