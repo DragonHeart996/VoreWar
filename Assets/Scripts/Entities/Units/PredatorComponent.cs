@@ -3025,6 +3025,11 @@ public class PredatorComponent
         return GetVoreSteal(target) != null;
     }
 
+    public float GetVoreStealBulk(Actor_Unit target)
+    {
+        return GetVoreSteal(target).Actor.Bulk();
+    }
+    
     private Prey GetTransfer()
     {
         foreach (Prey preyUnit in balls)
@@ -3250,7 +3255,7 @@ public class PredatorComponent
         if (actor.Surrendered || actor.Unit.FixedSide == attacker.Unit.GetApparentSide(actor.Unit))
             return 1f;
 
-        if (prey.Unit.HasTrait(Traits.Irresistable))
+        if (attacker.Unit.HasTrait(Traits.Irresistable))
             return 1f;
 
         float recipientVoracity = Mathf.Pow(15 + attacker.Unit.GetStat(Stat.Voracity), 1.5f);
