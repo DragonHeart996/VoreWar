@@ -3437,13 +3437,19 @@ public class PredatorComponent
         var deadPrey = new List<Prey>();
         if (feedType == "breast" || feedType == "any")
         {
-            var data = Races.GetRace(unit.Race);
-            if (data.ExtendedBreastSprites)
-            {
+                int genericBreastHealth = 0;
                 int leftBreastHealth = 0;
                 int rightBreastHealth = 0;
+                int genericBreastEXP = 0;
                 int leftBreastEXP = 0;
                 int rightBreastEXP = 0;
+                foreach (Prey preyUnit in actor.PredatorComponent.breasts.ToList())
+                    if (preyUnit.Unit.IsDead)
+                    {
+                        deadPrey.Add(preyUnit);
+                        genericBreastHealth += heatlhBoostCalc(preyUnit, target);
+                        genericBreastEXP += expBoostCalc(preyUnit);
+                    }
                 foreach (Prey preyUnit in actor.PredatorComponent.leftBreast.ToList())
                     if (preyUnit.Unit.IsDead)
                     {
@@ -3460,7 +3466,15 @@ public class PredatorComponent
                     }
                 if (target.Unit.HealthPct < 1.0f)
                 {
-                    if (leftBreastHealth >= rightBreastHealth)
+                    if (genericBreastHealth >= leftBreastHealth
+                        && genericBreastHealth >= rightBreastHealth)
+                    {
+                        healthUp += genericBreastHealth;
+                        expUp += genericBreastEXP;
+                        if (feedType == "any")
+                            location = 0;
+                    } 
+                    else if (leftBreastHealth >= rightBreastHealth)
                     {
                         healthUp += leftBreastHealth;
                         expUp += leftBreastEXP;
@@ -3477,6 +3491,14 @@ public class PredatorComponent
                 }
                 else
                 {
+                    if (genericBreastEXP >= leftBreastEXP
+                        && genericBreastEXP >= rightBreastEXP)
+                    {
+                        healthUp += genericBreastHealth;
+                        expUp += genericBreastEXP;
+                        if (feedType == "any")
+                            location = 0;
+                    } 
                     if (leftBreastEXP >= rightBreastEXP)
                     {
                         healthUp += leftBreastHealth;
@@ -3492,15 +3514,7 @@ public class PredatorComponent
                             location = 2;
                     }
                 }
-            }
-            else
-                foreach (Prey preyUnit in actor.PredatorComponent.breasts.ToList())
-                    if (preyUnit.Unit.IsDead)
-                    {
-                        deadPrey.Add(preyUnit);
-                        healthUp += heatlhBoostCalc(preyUnit, target);
-                        expUp += expBoostCalc(preyUnit);
-                    }
+                
         }
         if (feedType == "any")
         {
