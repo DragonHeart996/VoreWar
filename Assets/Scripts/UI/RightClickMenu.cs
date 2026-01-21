@@ -551,7 +551,7 @@ public class RightClickMenu : MonoBehaviour
                 PounceButtons[currentButton].onClick.AddListener(FinishAction);
                 if (!data.Actor.PredatorComponent.HasSpareCap(data.Target.Bulk()))
                 {
-                    PounceButtons[currentButton].GetComponentInChildren<Text>().text = $"Too bulky to vore";
+                    PounceButtons[currentButton].GetComponentInChildren<Text>().text = $"Too bulky to Vore";
                     PounceButtons[currentButton].interactable = false;
                 }
                 else
