@@ -3312,11 +3312,8 @@ public class PredatorComponent
                 }
             }
         }
-        var data = Races.GetRace(target.Unit.Race);
         if (State.RaceSettings.GetVoreTypes(actor.Unit.Race).Contains(VoreType.Oral))
         {
-            if (data.ExtendedBreastSprites)
-            {
                 foreach (Prey preyUnit in target.PredatorComponent.leftBreast)
                 {
                     if (!preyUnit.Unit.IsDead)
@@ -3331,9 +3328,6 @@ public class PredatorComponent
                         return preyUnit;
                     }
                 }
-            }
-            else
-            {
                 foreach (Prey preyUnit in target.PredatorComponent.breasts)
                 {
                     if (!preyUnit.Unit.IsDead)
@@ -3341,7 +3335,6 @@ public class PredatorComponent
                         return preyUnit;
                     }
                 }
-            }
         }
         if (State.RaceSettings.GetVoreTypes(actor.Unit.Race).Contains(VoreType.Oral))
         {
@@ -3950,8 +3943,7 @@ public class PredatorComponent
         Prey transfer = GetVoreSteal(target);
         if (transfer == null)
             return false;
-        float cap = FreeCap();
-        if (!target.PredatorComponent.HasSpareCap(transfer.Actor.Bulk()) 
+        if (!HasSpareCap(transfer.Actor.Bulk()) 
             && target.Unit != actor.Unit)
         {
             return false;
