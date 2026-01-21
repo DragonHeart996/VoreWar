@@ -154,8 +154,11 @@ class Selicia : BlankSlate
         if (actor.HasBelly)
         {
             if (actor.PredatorComponent.IsUnitOfSpecificationInPrey(Race.Selicia, true, PreyLocation.stomach, PreyLocation.womb))
-                return State.GameManager.SpriteDictionary.Selicia[33];
-            else if (actor.PredatorComponent.IsUnitOfSpecificationInPrey(Race.Selicia, false, PreyLocation.stomach, PreyLocation.womb))
+            {
+                if (actor.GetStomachSize(14, BellyScale * 0.5f) == 14)
+                    return State.GameManager.SpriteDictionary.Selicia[33];
+            }
+            if (actor.PredatorComponent.IsUnitOfSpecificationInPrey(Race.Selicia, PreyLocation.stomach, PreyLocation.womb))
             {
                 if (actor.GetStomachSize(14, BellyScale * 0.7f) == 14)
                     return State.GameManager.SpriteDictionary.Selicia[32];
