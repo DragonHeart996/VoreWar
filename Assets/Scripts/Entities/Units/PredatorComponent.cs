@@ -1052,8 +1052,11 @@ public class PredatorComponent
         int totalHeal = 0;
         foreach (Prey preyUnit in prey.ToList())
         {
-            if (((preyUnit.Location != PreyLocation.breasts || preyUnit.Location != PreyLocation.leftBreast || preyUnit.Location != PreyLocation.rightBreast) && feedType == "breastfeed") || (preyUnit.Location != PreyLocation.balls && feedType == "cumfeed"))
-                break;
+            if ((preyUnit.Location != PreyLocation.breasts && feedType == "breastfeed") 
+                || (preyUnit.Location != PreyLocation.leftBreast && feedType == "breastfeedL")
+                || (preyUnit.Location != PreyLocation.rightBreast && feedType == "breastfeedR")
+                || (preyUnit.Location != PreyLocation.balls && feedType == "cumfeed"))
+                continue;
             if (unit.HasTrait(Traits.EnthrallingDepths) || preyUnit.Unit.GetStatusEffect(StatusEffectType.Hypnotized)?.Strength == unit.FixedSide)
             {
                 preyUnit.Unit.ApplyStatusEffect(StatusEffectType.WillingPrey, 0, 3);
@@ -3175,10 +3178,6 @@ public class PredatorComponent
         int actorMaxHeal = actor.Unit.MaxHealth - actor.Unit.Health;
         if (r > v)
         {
-            if (!target.Unit.HasBreasts && target.Unit.HasDick)
-            {
-                suckle[2] = 3;
-            }
             switch (suckle[2])
             {
                 case 0:
@@ -3200,10 +3199,6 @@ public class PredatorComponent
         {
             actor.Unit.GiveRawExp(suckle[1]);
             actor.UnitSprite.DisplayDamage(suckle[1], false, true);
-            if (!target.Unit.HasBreasts && target.Unit.HasDick)
-            {
-                suckle[2] = 3;
-            }
             switch (suckle[2])
             {
                 case 0:
@@ -3471,22 +3466,19 @@ public class PredatorComponent
                     {
                         healthUp += genericBreastHealth;
                         expUp += genericBreastEXP;
-                        if (feedType == "any")
-                            location = 0;
+                        location = 0;
                     } 
                     else if (leftBreastHealth >= rightBreastHealth)
                     {
                         healthUp += leftBreastHealth;
                         expUp += leftBreastEXP;
-                        if (feedType == "any")
-                            location = 1;
+                        location = 1;
                     }
                     else
                     {
                         healthUp += rightBreastHealth;
-                        expUp += rightBreastEXP;
-                        if (feedType == "any")
-                            location = 2;
+                        expUp += rightBreastEXP; 
+                        location = 2;
                     }
                 }
                 else
@@ -3495,23 +3487,20 @@ public class PredatorComponent
                         && genericBreastEXP >= rightBreastEXP)
                     {
                         healthUp += genericBreastHealth;
-                        expUp += genericBreastEXP;
-                        if (feedType == "any")
-                            location = 0;
+                        expUp += genericBreastEXP; 
+                        location = 0;
                     } 
                     if (leftBreastEXP >= rightBreastEXP)
                     {
                         healthUp += leftBreastHealth;
-                        expUp += leftBreastEXP;
-                        if (feedType == "any")
-                            location = 1;
+                        expUp += leftBreastEXP; 
+                        location = 1;
                     }
                     else
                     {
                         healthUp += rightBreastHealth;
-                        expUp += rightBreastEXP;
-                        if (feedType == "any")
-                            location = 2;
+                        expUp += rightBreastEXP; 
+                        location = 2;
                     }
                 }
                 
@@ -3531,8 +3520,7 @@ public class PredatorComponent
                     healthUp += heatlhBoostCalc(preyUnit, target);
                     expUp += expBoostCalc(preyUnit);
                 }
-            if (feedType == "any")
-                location = 3;
+            location = 3;
         }
         if (feedType == "any")
         {
@@ -3597,7 +3585,18 @@ public class PredatorComponent
         target.UnitSprite.UpdateSprites(actor, true);
         if (nurseHeal[0] + nurseHeal[1] > 0)
             TacticalUtilities.Log.RegisterHeal(target.Unit, nurseHeal, "breastfeeding", actor.Unit.HasTrait(Traits.Honeymaker) ? "honey" : "none");
-        actor.DigestCheck("breastfeed");
+        switch (digestion.Item1[2])
+        {
+            case 0:
+                actor.DigestCheck("breastfeed");
+                break;
+            case 1:
+                actor.DigestCheck("breastfeedL");
+                break;
+            case 2:
+                actor.DigestCheck("breastfeedR");
+                break;
+        }
         if (unit.HasTrait(Traits.Corruption))
         {
             target.AddCorruption(unit.GetStatTotal() / 10, unit.FixedSide);
