@@ -863,11 +863,15 @@ internal class CreateSpawn : VoreTrait
 
     public override bool OnFinishAbsorption(Prey preyUnit, Actor_Unit predUnit, PreyLocation location)
     {
+        int side = predUnit.Unit.Side;
         Race spawnRace = predUnit.Unit.DetermineSpawnRace();
         if (!predUnit.Unit.HasSharedTrait(Traits.CreateSpawn))
+        {
             spawnRace = predUnit.Unit.HiddenUnit.DetermineSpawnRace();
-        // use source race IF changeling already had this ability before transforming
-        predUnit.PredatorComponent.CreateSpawn(spawnRace, predUnit.Unit.Side, predUnit.Unit.Experience / 2);
+            side = predUnit.Unit.HiddenUnit.Side;
+        }
+        // use source race and side IF changeling already had this ability before transforming
+        predUnit.PredatorComponent.CreateSpawn(spawnRace, side, predUnit.Unit.Experience / 2);
         return true;
     }
 }

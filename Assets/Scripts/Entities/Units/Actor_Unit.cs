@@ -3773,7 +3773,7 @@ public class Actor_Unit
 
     public void RevertRace()
     {
-        if (Unit.HiddenRace != Unit.Race)
+        if (Unit.HiddenRace != Unit.Race || Unit.HiddenUnit != Unit)
         {
             TacticalGraphicalEffects.CreateSmokeCloud(Position, Unit.GetScale() / 2);
             Unit.UnhideRace();
