@@ -1618,6 +1618,20 @@ public class PredatorComponent
                 if (!callback.OnDigestionKill(preyUnit, actor, location))
                     return 0;
             }
+            
+            // Take the prey's living subprey now, before end-of-turn failsafe code releases them.
+			if (preyUnit.SubPrey?.Count() > 0)
+            {
+                Prey[] aliveSubUnits = preyUnit.GetAliveSubPrey();
+                for (int i = 0; i < aliveSubUnits.Length; i++)
+                {
+                    Prey newPrey = new Prey(aliveSubUnits[i].Actor, actor, aliveSubUnits[i].SubPrey);
+                    PreyLocation oldLocation = newPrey.Location;
+                    AddPrey(newPrey, Location(preyUnit));
+                    preyUnit.SubPrey.Remove(aliveSubUnits[i]);
+                    State.GameManager.TacticalMode.Log.RegisterMiscellaneous($"Sensing that <b>{preyUnit.Unit.Name}</b> is dead, <b>{newPrey.Unit.Name}</b> seizes the opportunity to claw {LogUtilities.GPPHis(newPrey.Unit)} way out of {LogUtilities.GPPHis(preyUnit.Unit)} {PreyLocStrings.ToSyn(oldLocation)}, only to find that now they are stuck in <b>{actor.Unit.Name}</b>'s {PreyLocStrings.ToSyn(newPrey.Location)}!");
+                }
+            }
         }
 
         if (preyUnit.Unit.IsThisCloseToDeath(preyDamage))
@@ -1683,15 +1697,21 @@ public class PredatorComponent
                 if (!callback.OnAbsorption(preyUnit, actor, location, healthReduction, totalHeal))
                     return 0;
             }
-            if (preyUnit.Unit.IsDeadAndOverkilledBy(healthReduction * 2) && preyUnit.SubPrey?.Count() > 0)
+            
+            // Take the prey's dead subprey after a couple of turns (give or take), or when it is fully absorbed.
+            if (preyUnit.SubPrey?.Count() > 0 && preyUnit.Unit.IsDeadAndOverkilledBy(Math.Min(healthReduction * 3, preyUnit.Unit.MaxHealth)))
             {
-                Prey[] aliveSubUnits = preyUnit.GetAliveSubPrey();
-                for (int i = 0; i < aliveSubUnits.Length; i++)
+                Prey[] deadSubUnits = preyUnit.GetDeadSubPrey();
+                string preys = "";
+                PreyLocation loc = preyUnit.Location;
+                for (int i = 0; i < deadSubUnits.Length; i++)
                 {
-                    Prey newPrey = new Prey(aliveSubUnits[i].Actor, actor, aliveSubUnits[i].SubPrey);
+                    Prey newPrey = new Prey(deadSubUnits[i].Actor, actor, deadSubUnits[i].SubPrey);
                     AddPrey(newPrey, Location(preyUnit));
-                    preyUnit.SubPrey.Remove(aliveSubUnits[i]);
+                    preyUnit.SubPrey.Remove(deadSubUnits[i]);
+                    preys += (i != 0 && deadSubUnits.Length > 2 ? "," : "") + (deadSubUnits.Length > 1 && i == deadSubUnits.Length - 1 ? " and " : " ") + newPrey.Unit.Name;
                 }
+                State.GameManager.TacticalMode.Log.RegisterMiscellaneous($"Inside of <b>{actor.Unit.Name}</b>, <b>{preyUnit.Unit.Name}</b>'s body breaks down and releases{preys} into <b>{actor.Unit.Name}</b>'s {PreyLocStrings.ToSyn(loc)}.");
             }
 
             //(Ambi) Weight Gain at 80% Absorption
