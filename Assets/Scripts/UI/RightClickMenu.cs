@@ -660,7 +660,7 @@ public class RightClickMenu : MonoBehaviour
                     Buttons[currentButton].onClick.AddListener(() => data.Actor.PredatorComponent.VoreStealAttempt(data.Target));
                     Buttons[currentButton].onClick.AddListener(FinishAction);
                     Buttons[currentButton].GetComponentInChildren<Text>().text = $"Vore Steal {data.DevourChance}%";
-                    if (!data.Target.PredatorComponent.HasSpareCap(actor.PredatorComponent.GetVoreStealBulk(data.Target)))
+                    if (!data.Actor.PredatorComponent.HasSpareCap(actor.PredatorComponent.GetVoreStealBulk(data.Target)))
                     {
                         Buttons[currentButton].GetComponentInChildren<Text>().text = $"Too bulky to Steal";
                         Buttons[currentButton].interactable = false;
