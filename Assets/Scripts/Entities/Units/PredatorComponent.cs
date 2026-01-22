@@ -2914,7 +2914,7 @@ public class PredatorComponent
         if (State.GameManager.CurrentScene == State.GameManager.TacticalMode &&
             State.GameManager.TacticalMode.IsPlayerInControl == false &&
             State.GameManager.TacticalMode.turboMode == false)
-            State.GameManager.CameraCall(target.Position);
+            State.GameManager.CameraCall(actor.Position);
         if (target.Unit == unit)
             return false;
         if (target.DefendSpellCheck(spell, actor, out float chance, mod: sneakAttack ? -0.3f : 0f) == false)
@@ -2972,7 +2972,7 @@ public class PredatorComponent
         if (State.GameManager.CurrentScene == State.GameManager.TacticalMode &&
             State.GameManager.TacticalMode.IsPlayerInControl == false &&
             State.GameManager.TacticalMode.turboMode == false)
-            State.GameManager.CameraCall(target.Position);
+            State.GameManager.CameraCall(actor.Position);
         if (TacticalUtilities.AppropriateVoreTarget(actor, target) == false)
         {
             return false;
