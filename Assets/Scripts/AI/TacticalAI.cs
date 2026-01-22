@@ -380,7 +380,7 @@ public abstract class TacticalAI : ITacticalAI
             if (unit.Targetable == true && unit.Unit.Predator && unit.Unit.FixedSide == temptation?.Applicator?.FixedSide && TacticalUtilities.GetMindControlSide(unit.Unit) == -1 && !unit.Surrendered)
             {
                 int distance = unit.Position.GetNumberOfMovesDistance(position);
-                if (distance < ap)
+                if (distance <= ap)
                 {
                     if (distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false)
                         continue;
@@ -401,7 +401,7 @@ public abstract class TacticalAI : ITacticalAI
             }
             else
             {
-                if (targets[0].actor.Position.GetNumberOfMovesDistance(position) < ap) //discard the clearly impossible
+                if (targets[0].actor.Position.GetNumberOfMovesDistance(position) <= ap) //discard the clearly impossible
                 {
                     int distance = CheckMoveTo(actor, position, targets[0].actor.Position, 1, ap);
                     if (distance < ap && distance >= 0)
@@ -424,7 +424,7 @@ public abstract class TacticalAI : ITacticalAI
             if (unit.Targetable == true && unit.Unit.Predator && unit.Unit.FixedSide == temptation?.Applicator?.FixedSide && TacticalUtilities.GetMindControlSide(unit.Unit) == -1 && !unit.Surrendered)
             {
                 int distance = unit.Position.GetNumberOfMovesDistance(actor.Position);
-                if (distance < actor.Movement)
+                if (distance <= actor.Movement)
                 {
                     if (distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false)
                         continue;
@@ -447,7 +447,7 @@ public abstract class TacticalAI : ITacticalAI
             }
             else
             {
-                if (targets[0].actor.Position.GetNumberOfMovesDistance(actor.Position) < actor.Movement) //discard the clearly impossible
+                if (targets[0].actor.Position.GetNumberOfMovesDistance(actor.Position) <= actor.Movement) //discard the clearly impossible
                 {
                     MoveToAndAction(actor, targets[0].actor.Position, 1, actor.Movement, () => TacticalUtilities.ForceFeed(actor, targets[0].actor));
                     if (foundPath && path.Path.Count() < actor.Movement)
@@ -1146,7 +1146,7 @@ public abstract class TacticalAI : ITacticalAI
             }
             else
             {
-                if (targets[0].actor.Position.GetNumberOfMovesDistance(position) < ap) //discard the clearly impossible
+                if (targets[0].actor.Position.GetNumberOfMovesDistance(position) <= ap) //discard the clearly impossible
                 {
                     int distance = CheckMoveTo(actor, position, targets[0].actor.Position, 1, ap);
                     if (distance < ap && distance >= 0)
@@ -1176,7 +1176,7 @@ public abstract class TacticalAI : ITacticalAI
             }
             else
             {
-                if (targets[0].actor.Position.GetNumberOfMovesDistance(actor.Position) < actor.Movement && (targets[0].actor.InSight || !State.World.IsNight)) //discard the clearly impossible
+                if (targets[0].actor.Position.GetNumberOfMovesDistance(actor.Position) <= actor.Movement && (targets[0].actor.InSight || !State.World.IsNight)) //discard the clearly impossible
                 {
                     if (actor.Unit.Race == Race.Asura && TacticalActionList.TargetedDictionary[SpecialAction.ShunGokuSatsu].AppearConditional(actor))
                         MoveToAndAction(actor, targets[0].actor.Position, 1, actor.Movement, () => actor.ShunGokuSatsu(targets[0].actor));
@@ -1232,7 +1232,7 @@ public abstract class TacticalAI : ITacticalAI
             {
 
                 int distance = unit.Position.GetNumberOfMovesDistance(position);
-                if (distance < moves)
+                if (distance <= moves)
                 {
                     if (distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false)
                         continue;
@@ -1589,7 +1589,7 @@ public abstract class TacticalAI : ITacticalAI
             }
             else
             {
-                if (targets[0].actor.Position.GetNumberOfMovesDistance(actor.Position) < actor.Movement) //discard the clearly impossible
+                if (targets[0].actor.Position.GetNumberOfMovesDistance(actor.Position) <= actor.Movement) //discard the clearly impossible
                 {
                     var distance = CheckMoveTo(actor, position, targets[0].actor.Position, 1, actor.Movement);
                     if (distance < ap && distance >= 0)
@@ -1911,7 +1911,7 @@ public abstract class TacticalAI : ITacticalAI
             if (unit.Targetable && unit.Unit.Side == AISide && unit.Surrendered == false)
             {
                 int distance = unit.Position.GetNumberOfMovesDistance(actor.Position);
-                if (distance - 1 < actor.Movement)
+                if (distance <= actor.Movement)
                 {
                     if ((distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false) || (unit.Unit.HealthPct == 1.0f && !Config.OverhealEXP) || unit == actor)
                         continue;
@@ -1969,7 +1969,7 @@ public abstract class TacticalAI : ITacticalAI
                 if (unit.Targetable && (unit.PredatorComponent.CanFeed() || unit.PredatorComponent.CanFeedCum()))
                 {
                     int distance = unit.Position.GetNumberOfMovesDistance(actor.Position);
-                    if (distance - 1 < actor.Movement)
+                    if (distance <= actor.Movement)
                     {
                         if ((distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false) || (actor.Unit.HealthPct >= 1.0f && !Config.OverhealEXP) || unit == actor)
                             continue;
