@@ -1911,7 +1911,7 @@ public abstract class TacticalAI : ITacticalAI
             if (unit.Targetable && unit.Unit.Side == AISide && unit.Surrendered == false)
             {
                 int distance = unit.Position.GetNumberOfMovesDistance(actor.Position);
-                if (distance < actor.Movement)
+                if (distance - 1 < actor.Movement)
                 {
                     if ((distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false) || (unit.Unit.HealthPct == 1.0f && !Config.OverhealEXP) || unit == actor)
                         continue;
@@ -1966,18 +1966,19 @@ public abstract class TacticalAI : ITacticalAI
         {
             if (unit.Unit.Predator)
             {
-                if (unit.Targetable && unit.Unit.Side == AISide && (unit.PredatorComponent.CanFeed() || unit.PredatorComponent.CanFeedCum()))
+                if (unit.Targetable && (unit.PredatorComponent.CanFeed() || unit.PredatorComponent.CanFeedCum()))
                 {
                     int distance = unit.Position.GetNumberOfMovesDistance(actor.Position);
-                    if (distance < actor.Movement)
+                    if (distance - 1 < actor.Movement)
                     {
-                        if ((distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false) || (unit.Unit.HealthPct >= 1.0f && !Config.OverhealEXP) || unit == actor)
+                        if ((distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false) || (actor.Unit.HealthPct >= 1.0f && !Config.OverhealEXP) || unit == actor)
                             continue;
                         int[] suckling = actor.PredatorComponent.GetSuckle(unit);
-                        if (actor.Unit.HealthPct < 1.0f && suckling[0] != 0)
-                            targets.Add(new PotentialTarget(unit, suckling[0], distance, 4));
-                        if (Config.OverhealEXP && suckling[1] != 0)
-                            targets.Add(new PotentialTarget(unit, suckling[1], distance, 4));
+                        float chance = actor.PredatorComponent.GetSuckleChance(unit);
+                        if (actor.Unit.HealthPct < 1.0f && suckling[0] > 0)
+                            targets.Add(new PotentialTarget(unit, suckling[0] * chance, distance, 4));
+                        if (Config.OverhealEXP && suckling[1] > 0)
+                            targets.Add(new PotentialTarget(unit, suckling[1] * chance, distance, 4));
                     }
                 }
             }
