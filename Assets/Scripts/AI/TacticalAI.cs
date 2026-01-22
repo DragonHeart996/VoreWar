@@ -858,7 +858,7 @@ public abstract class TacticalAI : ITacticalAI
                     int distance = unit.Position.GetNumberOfMovesDistance(position);
                     if (distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false) 
                         continue;
-                    targets.Add(new PotentialTarget(unit, unit.Surrendered ? 0.00f : 0.01f, distance, 4, 0.00f));
+                    targets.Add(new PotentialTarget(unit, unit.Unit.IsDead ? 0.01f : 0.00f, distance, 4, 0.01f));
                 }
             }
             PotentialTarget primeTarget = targets.Where(t => t.distance < 2).OrderByDescending(s => s.chance).FirstOrDefault();

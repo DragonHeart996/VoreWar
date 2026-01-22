@@ -810,7 +810,7 @@ public class HoveringTooltip : MonoBehaviour
                 return "At the start of battle, this unit has a 25% chance to teleported into a random predator.";       
             case Traits.Competitive:
                 return "Unit deals bonus ranged and melee damage to members of the same race.";      
-            case Traits.CompetetivePredator:
+            case Traits.CompetitivePredator:
                 return "When an another nearby unit is eaten, this unit has a 10% chance to eat a random adjacent unit.";
             case Traits.PassThrough:
                 return "Unit can move past (but not stop on) allied units. Not recommended to use with Blitz or SpectralStep.";

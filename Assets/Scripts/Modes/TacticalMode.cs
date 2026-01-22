@@ -199,7 +199,7 @@ public class TacticalMode : SceneBase
 
     float autoAdvanceTimer;
     bool autoAdvancing;
-    const float AutoAdvanceRate = .4f;
+    const float AutoAdvanceRate = 0.4f;
 
     PathNodeManager arrowManager;
     List<PathNode> queuedPath;
@@ -3462,9 +3462,7 @@ public class TacticalMode : SceneBase
             if (RunningFriendlyAI)
             {
                 if (AITimer > 0)
-                {
                     AITimer -= dt;
-                }
                 else
                 {
                     RefreshAIIfNecessary();
@@ -3492,9 +3490,7 @@ public class TacticalMode : SceneBase
                 }
                 foreignAI.ForeignTurn = true;
                 if (AITimer > 0)
-                {
                     AITimer -= dt;
-                }
                 else
                 {
                     //do AI processing
@@ -3514,8 +3510,8 @@ public class TacticalMode : SceneBase
         }
         if (autoAdvancing)
         {
-            autoAdvanceTimer -= Time.deltaTime;
-            if (autoAdvanceTimer <= 0)
+            AITimer -= dt;
+            if (AITimer <= 0)
             {
                 EndTurn();
                 if (Config.AutoAdvance == Config.AutoAdvanceType.SkipToEnd)
@@ -3528,7 +3524,9 @@ public class TacticalMode : SceneBase
                     }
                 }
                 else
-                    autoAdvanceTimer = AutoAdvanceRate;
+                {
+                    AITimer = Math.Max(AITimer, AutoAdvanceRate);
+                }
             }
         }
 
@@ -4616,8 +4614,8 @@ public class TacticalMode : SceneBase
         UpdateEndTurnButtonText();
         StatusUI.EndTurn.interactable = IsPlayerTurn;
         EnemyTurnText.SetActive(!IsPlayerTurn);
-        if (IsPlayerTurn == false)
-            AITimer = .2f;
+        //if (IsPlayerTurn == false)
+            AITimer = Math.Max(AITimer, AutoAdvanceRate);
         if (attackersTurn)
         {
             StatusUI.AttackerText.fontStyle = FontStyle.Bold;
@@ -4736,8 +4734,9 @@ public class TacticalMode : SceneBase
         if (turboMode == false)
         {
             RebuildInfo();
+            
             autoAdvancing = Config.AutoAdvance > 0 
-                            && IsOnlyOneSideVisible();
+                            && IsOnlyOneSideVisible(true);
             VictoryCheck();
         }
     }
@@ -4771,7 +4770,7 @@ public class TacticalMode : SceneBase
         }
     }
 
-    internal bool IsOnlyOneSideVisible()
+    internal bool IsOnlyOneSideVisible(bool setTimer = false)
     {
         List<Actor_Unit> visibleAttackers = new List<Actor_Unit>();
         List<Actor_Unit> visibleDefenders = new List<Actor_Unit>();
@@ -4800,27 +4799,37 @@ public class TacticalMode : SceneBase
                 }
             }
         }
-        
+
+        bool foodRemaining = false;
         bool oneSideLeft = false;
         if (visibleAttackers.Count() == 0)
         {
-            if (!turboMode && !attackersTurn && IsPlayerTurn)
-                RunningFriendlyAI = CanEatDefeated(visibleDefenders, edibleDefeated);
+            if (!turboMode && IsPlayerTurn && !attackersTurn && Config.AutoAdvance > Config.AutoAdvanceType.DoNothing)
+                foodRemaining = CanEatDefeated(visibleDefenders, edibleDefeated);
             oneSideLeft = !visibleDefenders.Any(vd => !vd.Unit.hiddenFixedSide && TacticalUtilities.GetPreferredSide(vd.Unit, defenderSide, attackerSide) == attackerSide); // They are probably still fighting in this case
         }
         if (visibleDefenders.Count() == 0)
         {
-            if (!turboMode && attackersTurn && IsPlayerTurn)
-                RunningFriendlyAI = CanEatDefeated(visibleAttackers,edibleDefeated);
+            if (!turboMode && IsPlayerTurn && attackersTurn && Config.AutoAdvance > Config.AutoAdvanceType.DoNothing)
+                foodRemaining = CanEatDefeated(visibleAttackers, edibleDefeated);
             oneSideLeft = !visibleAttackers.Any(vd => !vd.Unit.hiddenFixedSide && TacticalUtilities.GetPreferredSide(vd.Unit, attackerSide, defenderSide) == defenderSide); // They are probably still fighting in this case
         }
-        autoAdvanceTimer = AutoAdvanceRate;
+
+        if (foodRemaining)
+        {
+            RunningFriendlyAI = true;
+            oneSideLeft = false;
+        }
+        //if (setTimer)
+        //    AITimer = Math.Max(AutoAdvanceRate, AITimer);
         AutoAdvanceText.SetActive(oneSideLeft && Config.AutoAdvance > Config.AutoAdvanceType.DoNothing);
         return oneSideLeft;
     }
 
     bool CanEatDefeated(List<Actor_Unit> possiblePreds, List<Actor_Unit> defeated)
     {
+        if (!possiblePreds.Any() || !defeated.Any())
+            return false;
         foreach (var actor in possiblePreds)
         {
             if (!actor.Unit.Predator)
