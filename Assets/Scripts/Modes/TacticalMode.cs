@@ -3008,6 +3008,7 @@ public class TacticalMode : SceneBase
                         else if (SelectedUnit.Surrendered == false)
                         {
                             SelectedUnit.Surrendered = true;
+                            SelectedUnit.Movement = 0;
                             if (State.Rand.NextDouble() <= Config.SurrenderedPredAutoRegur)
                             {
                                 SelectedUnit.PredatorComponent?.FreeAnyAlivePrey();
@@ -3243,6 +3244,7 @@ public class TacticalMode : SceneBase
             if (attacker ? units[i].Unit.Side != defenderSide : units[i].Unit.Side == defenderSide)
             {
                 units[i].Surrendered = true;
+                units[i].Movement = 0;
                 units[i].SurrenderedThisTurn = true;
             }
         }
@@ -4773,14 +4775,14 @@ public class TacticalMode : SceneBase
     {
         List<Actor_Unit> visibleAttackers = new List<Actor_Unit>();
         List<Actor_Unit> visibleDefenders = new List<Actor_Unit>();
-        List<Actor_Unit> edibleCorpses = new List<Actor_Unit>();
+        List<Actor_Unit> edibleDefeated = new List<Actor_Unit>();
         
         for (int i = 0; i < units.Count; i++)
         {
             if (units[i] != null && units[i].Fled == false)
             {
                 Actor_Unit actor = units[i];
-                if (actor.Targetable)
+                if (actor.Targetable && !actor.Surrendered)
                 {
                     if (actor.Unit.Side == armies[0].Side)
                     {
@@ -4791,19 +4793,20 @@ public class TacticalMode : SceneBase
                         visibleDefenders.Add(actor);
                     }
                 }
-                else if (actor.Unit.IsDead && actor.Visible && Config.EdibleCorpses)
+                else if ((actor.Unit.IsDead && actor.Visible && Config.EdibleCorpses)
+                         || (actor.Surrendered && actor.Visible))
                 {
-                    edibleCorpses.Add(actor);
+                    edibleDefeated.Add(actor);
                 }
             }
         }
         
         bool oneSideLeft = false;
-        if (visibleAttackers.Count() == 0 && (attackersTurn || !CanEatCorpses(visibleDefenders,edibleCorpses)))
+        if (visibleAttackers.Count() == 0 && (attackersTurn || !CanEatDefeated(visibleDefenders,edibleDefeated)))
         {
             oneSideLeft = !visibleDefenders.Any(vd => !vd.Unit.hiddenFixedSide && TacticalUtilities.GetPreferredSide(vd.Unit, defenderSide, attackerSide) == attackerSide); // They are probably still fighting in this case
         }
-        if (visibleDefenders.Count() == 0 && (!attackersTurn || !CanEatCorpses(visibleAttackers,edibleCorpses)))
+        if (visibleDefenders.Count() == 0 && (!attackersTurn || !CanEatDefeated(visibleAttackers,edibleDefeated)))
         {
             oneSideLeft = !visibleAttackers.Any(vd => !vd.Unit.hiddenFixedSide && TacticalUtilities.GetPreferredSide(vd.Unit, attackerSide, defenderSide) == defenderSide); // They are probably still fighting in this case
         }
@@ -4812,13 +4815,13 @@ public class TacticalMode : SceneBase
         return oneSideLeft;
     }
 
-    bool CanEatCorpses(List<Actor_Unit> possiblePreds, List<Actor_Unit> corpses)
+    bool CanEatDefeated(List<Actor_Unit> possiblePreds, List<Actor_Unit> defeated)
     {
         foreach (var actor in possiblePreds)
         {
             if (!actor.Unit.Predator)
                 continue;
-            foreach (var target in corpses)
+            foreach (var target in defeated)
                 if (actor.PredatorComponent.HasSpareCap(target.Bulk()))
                     return true;
         }

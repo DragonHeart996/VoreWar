@@ -3059,6 +3059,7 @@ public class Actor_Unit
             //These are thrown in as insurance incase of weirdness - there was a bug report of a unit that had negative health and was not flagged as dead, and didn't die when hit.
             Targetable = false;
             Surrendered = true;
+            Movement = 0;
             PredatorComponent?.FreeAnyAlivePrey();
             //Debug.Log("Attack performed on target that was already dead");
             return false;
@@ -3171,6 +3172,7 @@ public class Actor_Unit
             State.GameManager.TacticalMode.DirtyPack = true;
             Targetable = false;
             Surrendered = true;
+            Movement = 0;
             if (Config.VisibleCorpses && Unit.Race != Race.Erin && Unit.Race != Race.Iliijiith && Unit.Race != Race.Olivia)
             {
                 float angle = 40 + State.Rand.Next(280);
@@ -3654,6 +3656,7 @@ public class Actor_Unit
                     State.GameManager.TacticalMode.Log.RegisterMiscellaneous($"Suddenly, there is a flash of light and both casters stagger for a moment. What happened?.");
                     t.Unit.Type = UnitType.Adventurer;
                     t.Surrendered = true;
+                    t.Movement = 0;
                     t.Damage(9999999, true, true);
                     t.Visible = false;
                     t.Unit.Name += " The Banished";
