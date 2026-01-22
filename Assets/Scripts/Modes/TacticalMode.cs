@@ -4802,12 +4802,16 @@ public class TacticalMode : SceneBase
         }
         
         bool oneSideLeft = false;
-        if (visibleAttackers.Count() == 0 && (attackersTurn || !CanEatDefeated(visibleDefenders,edibleDefeated)))
+        if (visibleAttackers.Count() == 0)
         {
+            if (!turboMode && !attackersTurn && IsPlayerTurn)
+                RunningFriendlyAI = CanEatDefeated(visibleDefenders, edibleDefeated);
             oneSideLeft = !visibleDefenders.Any(vd => !vd.Unit.hiddenFixedSide && TacticalUtilities.GetPreferredSide(vd.Unit, defenderSide, attackerSide) == attackerSide); // They are probably still fighting in this case
         }
-        if (visibleDefenders.Count() == 0 && (!attackersTurn || !CanEatDefeated(visibleAttackers,edibleDefeated)))
+        if (visibleDefenders.Count() == 0)
         {
+            if (!turboMode && attackersTurn && IsPlayerTurn)
+                RunningFriendlyAI = CanEatDefeated(visibleAttackers,edibleDefeated);
             oneSideLeft = !visibleAttackers.Any(vd => !vd.Unit.hiddenFixedSide && TacticalUtilities.GetPreferredSide(vd.Unit, attackerSide, defenderSide) == defenderSide); // They are probably still fighting in this case
         }
         autoAdvanceTimer = AutoAdvanceRate;
@@ -4822,8 +4826,9 @@ public class TacticalMode : SceneBase
             if (!actor.Unit.Predator)
                 continue;
             foreach (var target in defeated)
-                if (actor.PredatorComponent.HasSpareCap(target.Bulk()))
-                    return true;
+                if (Config.EatSurrenderedAllies || target.Unit.IsDead || TacticalUtilities.TreatAsHostile(actor, target))
+                    if (actor.PredatorComponent.HasSpareCap(target.Bulk()))
+                        return true;
         }
 
         return false;

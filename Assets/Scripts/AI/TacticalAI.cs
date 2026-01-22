@@ -847,9 +847,10 @@ public abstract class TacticalAI : ITacticalAI
                         }
                     }
                 }
-                else if (unit.Unit.IsDead
+                else if (!State.GameManager.TacticalMode.turboMode
+                         && ((unit.Unit.IsDead && Config.EdibleCorpses) 
+                             || (unit.Surrendered && Config.EatSurrenderedAllies))
                          && unit.Visible
-                         && Config.EdibleCorpses
                          && actor.PredatorComponent.HasSpareCap(unit.Bulk())
                          && anyDistance
                          && unit != actor)
@@ -857,7 +858,7 @@ public abstract class TacticalAI : ITacticalAI
                     int distance = unit.Position.GetNumberOfMovesDistance(position);
                     if (distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false) 
                         continue;
-                    targets.Add(new PotentialTarget(unit, 0.00f, distance, 4, 0.00f));
+                    targets.Add(new PotentialTarget(unit, unit.Surrendered ? 0.00f : 0.01f, distance, 4, 0.00f));
                 }
             }
             PotentialTarget primeTarget = targets.Where(t => t.distance < 2).OrderByDescending(s => s.chance).FirstOrDefault();
