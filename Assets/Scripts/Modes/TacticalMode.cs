@@ -2845,7 +2845,7 @@ public class TacticalMode : SceneBase
         }
     }
 
-    void UpdateTailStrikeGrid(Vec2i mouseLocation)
+    void UpdateTailStrikeGrid(Vec2i mouseLocation)  //todo
     {
         MovementGrid.ClearAllTiles();
 
@@ -4658,7 +4658,7 @@ public class TacticalMode : SceneBase
     {
         AllSurrenderedCheck();
         Log.RegisterNewTurn(attackersTurn ? AttackerName : DefenderName, currentTurn);
-
+        
         for (int i = 0; i < units.Count; i++)
         {
             if (units[i].Unit.IsDead == false && units[i].Unit.Side != activeSide)
@@ -4734,7 +4734,8 @@ public class TacticalMode : SceneBase
         if (turboMode == false)
         {
             RebuildInfo();
-            autoAdvancing = Config.AutoAdvance > 0 && IsOnlyOneSideVisible();
+            autoAdvancing = Config.AutoAdvance > 0 
+                            && IsOnlyOneSideVisible();
             VictoryCheck();
         }
     }
@@ -4772,7 +4773,8 @@ public class TacticalMode : SceneBase
     {
         List<Actor_Unit> visibleAttackers = new List<Actor_Unit>();
         List<Actor_Unit> visibleDefenders = new List<Actor_Unit>();
-
+        List<Actor_Unit> edibleCorpses = new List<Actor_Unit>();
+        
         for (int i = 0; i < units.Count; i++)
         {
             if (units[i] != null && units[i].Fled == false)
@@ -4789,20 +4791,39 @@ public class TacticalMode : SceneBase
                         visibleDefenders.Add(actor);
                     }
                 }
+                else if (actor.Unit.IsDead && actor.Visible && Config.EdibleCorpses)
+                {
+                    edibleCorpses.Add(actor);
+                }
             }
         }
+        
         bool oneSideLeft = false;
-        if (visibleAttackers.Count() == 0)
+        if (visibleAttackers.Count() == 0 && (attackersTurn || !CanEatCorpses(visibleDefenders,edibleCorpses)))
         {
             oneSideLeft = !visibleDefenders.Any(vd => !vd.Unit.hiddenFixedSide && TacticalUtilities.GetPreferredSide(vd.Unit, defenderSide, attackerSide) == attackerSide); // They are probably still fighting in this case
         }
-        if (visibleDefenders.Count() == 0)
+        if (visibleDefenders.Count() == 0 && (!attackersTurn || !CanEatCorpses(visibleAttackers,edibleCorpses)))
         {
             oneSideLeft = !visibleAttackers.Any(vd => !vd.Unit.hiddenFixedSide && TacticalUtilities.GetPreferredSide(vd.Unit, attackerSide, defenderSide) == defenderSide); // They are probably still fighting in this case
         }
         autoAdvanceTimer = AutoAdvanceRate;
         AutoAdvanceText.SetActive(oneSideLeft && Config.AutoAdvance > Config.AutoAdvanceType.DoNothing);
         return oneSideLeft;
+    }
+
+    bool CanEatCorpses(List<Actor_Unit> possiblePreds, List<Actor_Unit> corpses)
+    {
+        foreach (var actor in possiblePreds)
+        {
+            if (!actor.Unit.Predator)
+                continue;
+            foreach (var target in corpses)
+                if (actor.PredatorComponent.HasSpareCap(target.Bulk()))
+                    return true;
+        }
+
+        return false;
     }
 
     bool VictoryCheck()

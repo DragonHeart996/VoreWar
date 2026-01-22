@@ -808,6 +808,35 @@ public class PredatorComponent
 
         return ret;
     }
+    
+    public float GetBulkOfDefeatedEndoPrey(int count = 0)
+    {
+        count++;
+        if (count > 300)
+        {
+            Debug.LogWarning("Infinite prey chain seemingly detected, handling it but you should check out the source");
+            return 0;
+        }
+
+        float ret = 0;
+        for (int i = 0; i < prey.Count; i++)
+        {
+            if (prey[i].Unit == actor.Unit)
+            {
+                Debug.Log("Prey inside of itself!");
+                FreePrey(prey[i], true);
+                continue;
+            }
+
+            if (TacticalUtilities.IsPreyEndoTargetForUnit(prey[i], actor.Unit)
+                && prey[i].EscapeRate == 0)
+            {
+                ret += prey[i].Actor.EstimatedFinalBulk(count);
+            }
+        }
+
+        return ret;
+    }
 
     public float TotalCapacity()
     {
@@ -824,7 +853,6 @@ public class PredatorComponent
         {
             totalBulk += prey[i].Actor.Bulk();
         }
-
         return TotalCapacity() - totalBulk;
     }
 
@@ -2975,7 +3003,6 @@ public class PredatorComponent
             return false;
         if (unit.CanVore(preyType) != CanVore(preyType, target))
             return false;
-        float cap = FreeCap();
         if (HasSpareCap(target.Bulk())
             && !(actor.Unit.HasTrait(Traits.TightNethers)
                  && actor.BodySize() < target.BodySize() * 3

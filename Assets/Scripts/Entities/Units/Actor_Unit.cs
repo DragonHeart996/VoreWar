@@ -2602,6 +2602,21 @@ public class Actor_Unit
         return bulk;
     }
 
+    public float EstimatedFinalBulk(int count = 0)
+    {
+        if (Unit.HasTrait(Traits.Inedible))
+            return float.MaxValue / 100;
+        if (Unit.IsDead)
+            return 0;
+        float bulk = BodySize();
+        if (Unit.HasTrait(Traits.Endosoma))
+        {
+            bulk += PredatorComponent?.GetBulkOfDefeatedEndoPrey(count) ?? 0;
+        }
+
+        return bulk;
+    }
+
 
 
 
