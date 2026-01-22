@@ -1214,12 +1214,12 @@ public static class State
                         for (y = 0; y < height; ++y)
                             validlocations[x, y] = TacticalTileInfo.CanWalkInto(data.tiles[x, y], null);
                     foreach (TacticalBuildings.TacticalBuilding bldg in data.buildings)
-                        for (x = 0; x < bldg.Width; ++x)
-                            for (y = 0; y < bldg.Height; ++y)
+                        for (x = 0; x < bldg.Width && bldg.LowerLeftPosition.x + x < width; ++x)
+                            for (y = 0; y < bldg.Height && bldg.LowerLeftPosition.y + y < height; ++y)
                                 validlocations[bldg.LowerLeftPosition.x + x, bldg.LowerLeftPosition.y + y] = false;
                     foreach (DecorationStorage dec in data.decorationStorage)
-                        for (x = 0; x < TacticalDecorations.TacticalDecorationList.DecDict[dec.Type].Width; ++x)
-                            for (y = 0; y < TacticalDecorations.TacticalDecorationList.DecDict[dec.Type].Height; ++y)
+                        for (x = 0; x < TacticalDecorations.TacticalDecorationList.DecDict[dec.Type].Width && dec.Position.x + x < width; ++x)
+                            for (y = 0; y < TacticalDecorations.TacticalDecorationList.DecDict[dec.Type].Height && dec.Position.x + x < height; ++y)
                                 validlocations[dec.Position.x + x, dec.Position.y + y] = false;
                     
                     bool[,] visitedtiles = new bool[width, height];
