@@ -3130,7 +3130,7 @@ public class PredatorComponent
         {
             if (!checkedunit.Unit.IsEnemyOfSide(target.Unit.Side))
             {
-                if (checkedunit.Unit.HasTrait(Traits.EnviousPrey))
+                if (checkedunit.Unit.HasTrait(Traits.EnviousPrey) && checkedunit != actor)
                 {
                     if (State.Rand.Next(10) == 0)
                     {
@@ -3143,7 +3143,7 @@ public class PredatorComponent
                 }
             }
 
-            if (checkedunit.Unit.HasTrait(Traits.CompetetivePredator))
+            if (checkedunit.Unit.HasTrait(Traits.CompetitivePredator) && checkedunit != actor)
             {
                 if (checkedunit.SelfPrey == null && State.Rand.Next(10) == 0)
                 {
@@ -3157,9 +3157,9 @@ public class PredatorComponent
                 }
             }
 
-            if (checkedunit.Unit.HasTrait(Traits.CurseOfSacrifice))
+            if (checkedunit.Unit.HasTrait(Traits.CurseOfSacrifice) && checkedunit != actor)
             {
-                if (checkedunit.Targetable && checkedunit != actor)
+                if (checkedunit.Targetable)
                 {
                     if (State.Rand.Next(10) == 0)
                     {

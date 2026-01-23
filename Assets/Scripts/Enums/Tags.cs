@@ -428,7 +428,7 @@ public enum Traits
     /// <summary>Unit has a small chance to gain Temptation each time an ally within 3 spaces is eaten.</summary>
     EnviousPrey = 516,
     /// <summary>When an another nearby unit is eaten, it has the chance to eat a random adjacent unit.</summary>
-    CompetetivePredator = 517,
+    CompetitivePredator = 517,
     /// <summary>When this unit rubs a unit's belly, the effect is doubled and 1 stack of Weakness is applied to the target.</summary>
     RoughMassage = 518,
     /// <summary>For the first 5 turns of battle, unit's MP is reduced by 50%.</summary>
