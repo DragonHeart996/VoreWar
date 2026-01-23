@@ -4578,6 +4578,9 @@ public class PredatorComponent
 
     internal void ForceConsume(Actor_Unit forcePrey, PreyLocation preyLocation)
     {
+        if (State.GameManager.CurrentScene == State.GameManager.TacticalMode && State.GameManager.TacticalMode.IsPlayerInControl == false && State.GameManager.TacticalMode.turboMode == false)
+            State.GameManager.CameraCall(actor.Position);
+        State.GameManager.TacticalMode.AITimer = Config.TacticalVoreDelay;
         if (forcePrey.Unit.IsDead == false)
             AlivePrey++;
         State.GameManager.TacticalMode.TacticalStats.RegisterVore(unit.Side);
@@ -5071,6 +5074,10 @@ public class PredatorComponent
 
     internal void ForceConsumeAuto(Actor_Unit forcePrey)
     {
+        if (State.GameManager.CurrentScene == State.GameManager.TacticalMode && State.GameManager.TacticalMode.IsPlayerInControl == false && State.GameManager.TacticalMode.turboMode == false)
+            State.GameManager.CameraCall(actor.Position);
+        State.GameManager.TacticalMode.AITimer = Config.TacticalVoreDelay;
+
         if (forcePrey.Unit.IsDead == false)
             AlivePrey++;
         State.GameManager.TacticalMode.TacticalStats.RegisterVore(unit.Side);

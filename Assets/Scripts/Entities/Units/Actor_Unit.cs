@@ -2507,6 +2507,7 @@ public class Actor_Unit
             target.SetRubbedMode();
             if (Config.BellyRubHands)
                 GameObject.Instantiate(State.GameManager.TacticalMode.HandPrefab, new Vector3(target.Position.x + UnityEngine.Random.Range(-0.2F, 0.2F), target.Position.y + 0.1F + UnityEngine.Random.Range(-0.1F, 0.1F)), new Quaternion());
+            State.GameManager.CameraCall(target.Position);
             State.GameManager.TacticalMode.AITimer = Config.TacticalVoreDelay;
         }
         target.DigestCheck();
