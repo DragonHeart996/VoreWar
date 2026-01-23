@@ -3587,6 +3587,14 @@ public class PredatorComponent
         }
         else
         {
+            if (State.GameManager.CurrentScene == State.GameManager.TacticalMode &&
+                State.GameManager.TacticalMode.IsPlayerInControl == false &&
+                State.GameManager.TacticalMode.turboMode == false)
+                State.GameManager.CameraCall(actor.Position);
+            State.GameManager.TacticalMode.AITimer = Config.TacticalVoreDelay;
+            actor.SetSuckleMode();
+            actor.SetVoreSuccessMode();
+            State.GameManager.SoundManager.PlaySwallow(PreyLocation.stomach,actor);
             actor.Unit.GiveRawExp(suckle[1]);
             actor.UnitSprite.DisplayDamage(suckle[1], false, true);
             switch (suckle[2])

@@ -779,7 +779,12 @@ public class Actor_Unit
     {
         if (Mode == DisplayMode.Attacking)
             return 1;
-        if (Mode == DisplayMode.OralVore || Mode == DisplayMode.BreastVore || Mode == DisplayMode.CockVore || Mode == DisplayMode.Unbirth || Mode == DisplayMode.AnalVore)
+        if (Mode == DisplayMode.OralVore 
+            || Mode == DisplayMode.BreastVore 
+            || Mode == DisplayMode.CockVore 
+            || Mode == DisplayMode.Unbirth 
+            || Mode == DisplayMode.AnalVore 
+            || Mode == DisplayMode.Suckling)
             return 2;
         return 0;
     }
