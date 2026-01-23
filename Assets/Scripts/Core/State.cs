@@ -10,7 +10,7 @@ using UnityEngine;
 public static class State
 {
     static int saveErrors = 0;
-    public const string Version = "44D";
+    public const string Version = "45";
     public static World World;
     public static Rand Rand = new Rand();
     public static NameGenerator NameGen;
@@ -1228,7 +1228,7 @@ public static class State
                     int bestnetworksize = 0;
                     for (x = 0; x < width; ++x)
                     {
-                        for (y = 0; y < width; ++y)
+                        for (y = 0; y < height; ++y)
                         {
                             if (visitedtiles[x, y] != true)
                             {
@@ -1257,21 +1257,21 @@ public static class State
                                     
                                     void AddAdjacentTilesToStack()
                                     {
-                                        AddTileToStack (new Vec2i(pos.x - 1, pos.y - 1));
-                                        AddTileToStack (new Vec2i(pos.x - 1, pos.y));
-                                        AddTileToStack (new Vec2i(pos.x - 1, pos.y + 1));
-                                        AddTileToStack (new Vec2i(pos.x, pos.y - 1));
-                                        AddTileToStack (new Vec2i(pos.x, pos.y + 1));
-                                        AddTileToStack (new Vec2i(pos.x + 1, pos.y - 1));
-                                        AddTileToStack (new Vec2i(pos.x + 1, pos.y));
-                                        AddTileToStack (new Vec2i(pos.x + 1, pos.y + 1));
+                                        AddTileToStack(new Vec2i(pos.x - 1, pos.y - 1));
+                                        AddTileToStack(new Vec2i(pos.x - 1, pos.y));
+                                        AddTileToStack(new Vec2i(pos.x - 1, pos.y + 1));
+                                        AddTileToStack(new Vec2i(pos.x, pos.y - 1));
+                                        AddTileToStack(new Vec2i(pos.x, pos.y + 1));
+                                        AddTileToStack(new Vec2i(pos.x + 1, pos.y - 1));
+                                        AddTileToStack(new Vec2i(pos.x + 1, pos.y));
+                                        AddTileToStack(new Vec2i(pos.x + 1, pos.y + 1));
                                     }
                                     
                                     AddAdjacentTilesToStack();
                                     while (tilestack.Count > 0)
                                     {
                                         pos = tilestack.Pop();
-                                        if (validlocations[x, y])
+                                        if (validlocations[pos.x, pos.y])
                                         {
                                             currentnetwork[pos.x, pos.y] = true;
                                             ++currentnetworksize;

@@ -364,6 +364,10 @@ static class TraitList
         [Traits.SlowerMetabolism] = new Booster("Unit digests and absorbs prey very slowly. (25%)", (s) => { s.Outgoing.AbsorptionRate *= 0.25f; s.Outgoing.DigestionRate *= 0.25f; }),
         [Traits.QueenOfFrost] = new Booster("<b>This unit is a fierce dragon of ice, possessing abilities and traits reflecting that status.</b> \n\n\nTakes <b>20%</b> less damage from Ice attacks. \nMay attempt <b>2</b> Vore actions per turn.  \nMay attempt <b>2</b> Normal attacks. \nCarries prey with no penalty to speed. \nPrey has a tough time escaping this predator's insides. (<b>50%</b> of normal odds)", (s) => { s.VoreAttacks += 1; s.MeleeAttacks += 1; s.Outgoing.ChanceToEscape *= 0.5f; s.SpeedLossFromWeightMultiplier = 0; s.DodgeLossFromWeightMultiplier = 0.2f; s.IceDamageTaken *= .8f; }),
         [Traits.AcellularBody] = new Booster("This unit has a non-cellular makeup causing them to provide less sustenance as prey and be impossible to convert by races without the same trait. Also has a hard time converting other races to its race. (50% convert rate and can only switch the prey's side unless they have the same trait)", (s) => { s.Outgoing.Nutrition *= 0.25f; }),
+        
+        //personal edits
+        [Traits.SweepingSwallow] = new Booster("Grants SweepingSwallow Attack", (s) => s.VoreAttacks += 0),
+        [Traits.ExtremelyStretchy] = new Booster("Can attempt to eat anything so long as it has some space \n\n Also prevents overfeeding damage", (s) => s.VoreAttacks += 0),
     };
 }
 
@@ -859,11 +863,15 @@ internal class CreateSpawn : VoreTrait
 
     public override bool OnFinishAbsorption(Prey preyUnit, Actor_Unit predUnit, PreyLocation location)
     {
+        int side = predUnit.Unit.Side;
         Race spawnRace = predUnit.Unit.DetermineSpawnRace();
         if (!predUnit.Unit.HasSharedTrait(Traits.CreateSpawn))
+        {
             spawnRace = predUnit.Unit.HiddenUnit.DetermineSpawnRace();
-        // use source race IF changeling already had this ability before transforming
-        predUnit.PredatorComponent.CreateSpawn(spawnRace, predUnit.Unit.Side, predUnit.Unit.Experience / 2);
+            side = predUnit.Unit.HiddenUnit.Side;
+        }
+        // use source race and side IF changeling already had this ability before transforming
+        predUnit.PredatorComponent.CreateSpawn(spawnRace, side, predUnit.Unit.Experience / 2);
         return true;
     }
 }

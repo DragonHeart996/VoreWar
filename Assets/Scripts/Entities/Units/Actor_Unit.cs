@@ -308,15 +308,15 @@ public class Actor_Unit
             Unit.ApplyStatusEffect(StatusEffectType.Respawns, 1, 1);
         if (Unit.HasTrait(Traits.RespawnerIII) && (State.GameManager.TacticalMode.currentTurn == 1) && State.GameManager.TacticalMode.attackersTurnCheck == true)
             Unit.ApplyStatusEffect(StatusEffectType.Respawns, 3, 3);
-        int sizePenalty = (int)(PredatorComponent?.Fullness ?? 0);
-        sizePenalty = (int)(sizePenalty * Unit.TraitBoosts.SpeedLossFromWeightMultiplier);
+        float sizePenalty = (PredatorComponent?.Fullness ?? 0);                             //multiplicative speed penalty
+        sizePenalty = 1 - (sizePenalty * Unit.TraitBoosts.SpeedLossFromWeightMultiplier);   //works better for units with high base AP
         int bonus = 0;
         if (State.World?.ItemRepository != null && Unit.Items.Contains(State.World.ItemRepository.GetItem(ItemType.Shoes)))
             bonus += 1;
         bonus += Unit.TraitBoosts.SpeedBonus;
         if (Unit.HasTrait(Traits.Charge) && State.GameManager.TacticalMode.currentTurn <= 2)
             bonus += 4;
-        int total = Mathf.Max(bonus + 3 + ((int)Mathf.Pow(Unit.GetStat(Stat.Agility) / 4, .8f)) - sizePenalty, 1);
+        int total = Mathf.Max((int)((bonus + 3 + Mathf.Pow(Unit.GetStat(Stat.Agility) / 4f, .8f)) * sizePenalty), 1);  //personal edit - multiplicative speed penalty
         var speed = Unit.GetStatusEffect(StatusEffectType.Fast);
         if (speed != null)
         {
@@ -779,7 +779,12 @@ public class Actor_Unit
     {
         if (Mode == DisplayMode.Attacking)
             return 1;
-        if (Mode == DisplayMode.OralVore || Mode == DisplayMode.BreastVore || Mode == DisplayMode.CockVore || Mode == DisplayMode.Unbirth || Mode == DisplayMode.AnalVore)
+        if (Mode == DisplayMode.OralVore 
+            || Mode == DisplayMode.BreastVore 
+            || Mode == DisplayMode.CockVore 
+            || Mode == DisplayMode.Unbirth 
+            || Mode == DisplayMode.AnalVore 
+            || Mode == DisplayMode.Suckling)
             return 2;
         return 0;
     }
@@ -1359,7 +1364,7 @@ public class Actor_Unit
             return false;
         if (TacticalUtilities.AppropriateVoreTarget(this, target) == false)
             return false;
-        if (PredatorComponent.FreeCap() < target.Bulk())
+        if (!PredatorComponent.HasSpareCap(target.Bulk()))
             return false;
         var pounceLandingZone = PounceAt(target);
         if (pounceLandingZone != null)
@@ -1506,10 +1511,58 @@ public class Actor_Unit
             }
         }
     }
+    
+    public bool AiSweepAttack(Actor_Unit mainTarget, Actor_Unit self, bool attack_ver)
+    {
+        if (Movement < 1 
+            || (attack_ver && !TacticalActionList.TargetedDictionary[SpecialAction.GiantSweep].AppearConditional(this)) 
+            || (!attack_ver && !TacticalActionList.TargetedDictionary[SpecialAction.SweepingSwallow].AppearConditional(this)))
+            return false;
+        if (!Unit.SpendMana(40))
+        {
+            return false;
+        }
+        List<Actor_Unit> targets = TacticalUtilities.UnitsWithinPattern(self.Position, new int[3, 3] { { 1, 1, 1 }, { 1, 0, 1 }, { 1, 1, 1 } });
+        List<AbilityTargets> targetTypes = new List<AbilityTargets> { AbilityTargets.Enemy };
+
+        foreach (var target in targets)
+        {
+            if (!TacticalUtilities.MeetsQualifier(targetTypes, this, target))
+                continue;
+            if (attack_ver)
+                TestAttack(target);
+            else
+                TestSwallow(target);
+        }
+
+        Movement = 0;
+
+        return true;
+
+        void TestAttack(Actor_Unit sideTarget)
+        {
+            if (sideTarget != null && sideTarget.Position.GetNumberOfMovesDistance(Position) == 1)
+            {
+                Movement = 1;
+                Attack(sideTarget, false, damageMultiplier: .66f);
+            }
+        }
+        void TestSwallow(Actor_Unit sideTarget)
+        {
+            if (sideTarget != null && sideTarget.Position.GetNumberOfMovesDistance(Position) == 1)
+            {
+                Movement = 1;
+                PredatorComponent.Devour(sideTarget);
+
+            }
+        }
+    }
 
     public bool SweepAttack(bool attack_ver)
     {
-        if (Movement < 1 || Unit.HasTrait(Traits.Legendary) == false)
+        if (Movement < 1 
+            || (attack_ver && !TacticalActionList.TargetedDictionary[SpecialAction.GiantSweep].AppearConditional(this)) 
+            || (!attack_ver && !TacticalActionList.TargetedDictionary[SpecialAction.SweepingSwallow].AppearConditional(this)))
             return false;
         if (!Unit.SpendMana(40))
         {
@@ -1522,7 +1575,7 @@ public class Actor_Unit
         foreach (var target in targets)
         {
             if (!TacticalUtilities.MeetsQualifier(targetTypes, this, target))
-                return false;
+                continue;
             if (attack_ver)
                 TestAttack(target);
             else
@@ -1557,7 +1610,8 @@ public class Actor_Unit
             return false;
         if (TacticalUtilities.AppropriateVoreTarget(this, target) == false)
             return false;
-        if (PredatorComponent.FreeCap() < target.Bulk())
+        float cap = PredatorComponent.FreeCap();
+        if (!PredatorComponent.HasSpareCap(target.Bulk()))
             return false;
         if (target.Position.GetNumberOfMovesDistance(Position) > 1)
             return false;
@@ -2458,6 +2512,7 @@ public class Actor_Unit
             target.SetRubbedMode();
             if (Config.BellyRubHands)
                 GameObject.Instantiate(State.GameManager.TacticalMode.HandPrefab, new Vector3(target.Position.x + UnityEngine.Random.Range(-0.2F, 0.2F), target.Position.y + 0.1F + UnityEngine.Random.Range(-0.1F, 0.1F)), new Quaternion());
+            State.GameManager.CameraCall(target.Position);
             State.GameManager.TacticalMode.AITimer = Config.TacticalVoreDelay;
         }
         target.DigestCheck();
@@ -2550,6 +2605,21 @@ public class Actor_Unit
 			bulk /= Unit.MaxHealth;
         }
         bulk += PredatorComponent?.GetBulkOfPrey(count) ?? 0;
+        return bulk;
+    }
+
+    public float EstimatedFinalBulk(int count = 0)
+    {
+        if (Unit.HasTrait(Traits.Inedible))
+            return float.MaxValue / 100;
+        if (Unit.IsDead)
+            return 0;
+        float bulk = BodySize();
+        if (Unit.HasTrait(Traits.Endosoma))
+        {
+            bulk += PredatorComponent?.GetBulkOfDefeatedEndoPrey(count) ?? 0;
+        }
+
         return bulk;
     }
 
@@ -2995,6 +3065,7 @@ public class Actor_Unit
             //These are thrown in as insurance incase of weirdness - there was a bug report of a unit that had negative health and was not flagged as dead, and didn't die when hit.
             Targetable = false;
             Surrendered = true;
+            Movement = 0;
             PredatorComponent?.FreeAnyAlivePrey();
             //Debug.Log("Attack performed on target that was already dead");
             return false;
@@ -3107,6 +3178,7 @@ public class Actor_Unit
             State.GameManager.TacticalMode.DirtyPack = true;
             Targetable = false;
             Surrendered = true;
+            Movement = 0;
             if (Config.VisibleCorpses && Unit.Race != Race.Erin && Unit.Race != Race.Iliijiith && Unit.Race != Race.Olivia)
             {
                 float angle = 40 + State.Rand.Next(280);
@@ -3590,6 +3662,7 @@ public class Actor_Unit
                     State.GameManager.TacticalMode.Log.RegisterMiscellaneous($"Suddenly, there is a flash of light and both casters stagger for a moment. What happened?.");
                     t.Unit.Type = UnitType.Adventurer;
                     t.Surrendered = true;
+                    t.Movement = 0;
                     t.Damage(9999999, true, true);
                     t.Visible = false;
                     t.Unit.Name += " The Banished";
@@ -3724,7 +3797,7 @@ public class Actor_Unit
 
     public void RevertRace()
     {
-        if (Unit.HiddenRace != Unit.Race)
+        if (Unit.HiddenRace != Unit.Race || Unit.HiddenUnit != Unit)
         {
             TacticalGraphicalEffects.CreateSmokeCloud(Position, Unit.GetScale() / 2);
             Unit.UnhideRace();

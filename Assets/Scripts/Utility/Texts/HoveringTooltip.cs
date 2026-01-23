@@ -118,7 +118,7 @@ public class HoveringTooltip : MonoBehaviour
         string MNDDef = $"Affects spell damage, success odds, and duration with a minor amount of mana capacity\n{StatData(Stat.Mind)}";
         string ENDDef = $"Affects total health, also reduces damage from acid, has a minor role in escape chance.\n{StatData(Stat.Endurance)}";
         string STMDef = $"Affects stomach capacity and digestion rate.  Also helps keep prey from escaping.\n{StatData(Stat.Stomach)}\n" +
-                     (State.World?.ItemRepository == null ? $"" : $"{(!unit.Predator ? "" : $"Capacity: {(actor?.PredatorComponent != null ? $"{Math.Round(actor.PredatorComponent.GetBulkOfPrey(), 2)} / " : "")}{Math.Round(State.RaceSettings.GetStomachSize(unit.Race) * (unit.GetStat(Stat.Stomach) / 12f * unit.TraitBoosts.CapacityMult), 1)}")}");
+                     (State.World?.ItemRepository == null ? $"" : $"{(!unit.Predator ? "" : $"Capacity: {(actor?.PredatorComponent != null ? $"{Math.Round(actor.PredatorComponent.GetBulkOfPrey(), 2)} / " : "")}{Math.Round(actor.PredatorComponent.TotalCapacity(), 1)}")}");
         string LDRDef = $"Provides a stat boost for all friendly units\nStat value: {unit.GetStatBase(Stat.Leadership)}";
         if (Enum.TryParse(words[2], out Stat stat) && unit != null)
         {
@@ -810,7 +810,7 @@ public class HoveringTooltip : MonoBehaviour
                 return "At the start of battle, this unit has a 25% chance to teleported into a random predator.";       
             case Traits.Competitive:
                 return "Unit deals bonus ranged and melee damage to members of the same race.";      
-            case Traits.CompetetivePredator:
+            case Traits.CompetitivePredator:
                 return "When an another nearby unit is eaten, this unit has a 10% chance to eat a random adjacent unit.";
             case Traits.PassThrough:
                 return "Unit can move past (but not stop on) allied units. Not recommended to use with Blitz or SpectralStep.";
