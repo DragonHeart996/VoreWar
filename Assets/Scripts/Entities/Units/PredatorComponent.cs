@@ -748,7 +748,14 @@ public class PredatorComponent
     {
         float c = State.RaceSettings.GetStomachSize(unit.Race);
         c *= unit.GetStat(Stat.Stomach) / 12f * unit.TraitBoosts.CapacityMult;
-        c *= unit.GetScale(1); // Since Scale already multiplies Stomach, multiplying by Scale once more results in two-dimensional scaling.
+        
+        // Adding more Capacity with greater scale makes sense from an in-universe standpoint; larger-scaled units can eat more, right?
+        // However, Scale already boosts the Stomach stat, which increases Capacity, one-dimensionally.
+        // We could multiply by unit.GetScale() for more dimensions, but this results in a balance problem.
+        // In play-testing, we see that with multi-dimensional Capacity increases, it's not long before a single unit can eat an entire (non-Scaled) army.
+        // Since Scaled-up units already get too strong too quickly, if they really want to eat an army solo, let's make them buy some Stomach at level up.
+        //c *= unit.GetScale(1);
+        
         return c;
     }
 
