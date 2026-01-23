@@ -240,7 +240,6 @@ public class TacticalMode : SceneBase
                 }
             }
             arrowManager.ClearNodes();
-            MovementGrid.ClearAllTiles();
             if (value == 0) specialType = SpecialAction.None;
             CommandsUI.SelectorIcon.transform.position = new Vector2(2000f, 2000f);
             if (units != null)
@@ -2488,11 +2487,11 @@ public class TacticalMode : SceneBase
                 break;
             case SpecialAction.SweepingSwallow:
                 ShowVoreHitPercentages(actor, PreyLocation.stomach);
-                UpdateOTargetGrid(actor.Position);
+                UpdateMeleeAOEGrid();
                 break;
             case SpecialAction.GiantSweep:
                 ShowMeleeHitPercentages(actor, .66f);
-                UpdateOTargetGrid(actor.Position);
+                UpdateMeleeAOEGrid();
                 break;
             case SpecialAction.AllInVore:
                 ShowBoostedVoreHitPercentages(actor, 50);
@@ -2815,7 +2814,6 @@ public class TacticalMode : SceneBase
 
     void UpdateMovementGrid()
     {
-        MovementGrid.ClearAllTiles();
         for (int x = 0; x <= tiles.GetUpperBound(0); x++)
         {
             for (int y = 0; y <= tiles.GetUpperBound(1); y++)
@@ -2828,8 +2826,6 @@ public class TacticalMode : SceneBase
 
     void UpdateAreaOfEffectGrid(Vec2i mouseLocation)
     {
-        MovementGrid.ClearAllTiles();
-
         int radius = CurrentSpell.AreaOfEffect;
         bool outOfRange = mouseLocation.GetNumberOfMovesDistance(SelectedUnit.Position) > CurrentSpell.Range.Max;
 
@@ -2845,77 +2841,69 @@ public class TacticalMode : SceneBase
         }
     }
 
-    void UpdateTailStrikeGrid(Vec2i mouseLocation)  //todo
+    void UpdateMeleeDirectionalGrid(Vec2i mouseLocation, int[,] targetTiles, int damage = 0)
     {
-        MovementGrid.ClearAllTiles();
-
-        if (SelectedUnit.Position.GetNumberOfMovesDistance(mouseLocation.x, mouseLocation.y) != 1)
-            return;
-
-        Vec2 pos = mouseLocation;
-        TestTile(pos);
-        TestTile(pos + new Vec2(1, 0));
-        TestTile(pos + new Vec2(0, 1));
-        TestTile(pos + new Vec2(-1, 0));
-        TestTile(pos + new Vec2(0, -1));
-
-        void TestTile(Vec2 p)
+        if (SelectedUnit.Position.GetNumberOfMovesDistance(mouseLocation) == 1)
         {
-            if (SelectedUnit.Position.GetNumberOfMovesDistance(p.x, p.y) == 1)
-                MovementGrid.SetTile(new Vector3Int(p.x, p.y, 0), MovementGridTileTypes[1]);
+            foreach (Vec2 tile_pos in TacticalUtilities.rotateTilePattern(SelectedUnit.Position, targetTiles,
+                         (int)((Math.Sqrt(targetTiles.Length) / 2) - 0.5),
+                         TacticalUtilities.GetRotatingOctant(SelectedUnit.Position, mouseLocation)))
+                    MovementGrid.SetTile(new Vector3Int(tile_pos.x, tile_pos.y, 0), MovementGridTileTypes[1]);
+            if (damage != 0)
+                foreach (Actor_Unit target in TacticalUtilities.UnitsWithinRotatingPattern(SelectedUnit.Position,
+                             targetTiles, TacticalUtilities.GetRotatingOctant(SelectedUnit.Position, mouseLocation)))
+                        target.UnitSprite.ShowDamagedHealthBar(target, damage);
+            
         }
     }
     
-    void UpdateOTargetGrid(Vec2i location)
+    void UpdateMeleeAOEGrid(int damage = 0)
     {
-        MovementGrid.ClearAllTiles();
-        foreach (var item in TacticalUtilities.TilesOnPattern(location, new int[3, 3] { { 1, 1, 1 }, { 1, 0, 1 }, { 1, 1, 1 } }, 1))
-        {
-            Vec2 pos = item;
-            TestTile(item);
-        }
-        void TestTile(Vec2 p)
-        {
-            if (SelectedUnit.Position.GetNumberOfMovesDistance(p.x, p.y) == 1)
-                MovementGrid.SetTile(new Vector3Int(p.x, p.y, 0), MovementGridTileTypes[1]);
-        }
+        int[,] pattern = { { 1, 1, 1 }, { 1, 0, 1 }, { 1, 1, 1 } } ;
+        foreach (var item in TacticalUtilities.TilesOnPattern(SelectedUnit.Position, pattern, 1))
+            MovementGrid.SetTile(new Vector3Int(item.x, item.y, 0), MovementGridTileTypes[1]);
+        if (damage != 0)
+            foreach (Actor_Unit target in TacticalUtilities.UnitsWithinPattern(SelectedUnit.Position, pattern))
+                target.UnitSprite.ShowDamagedHealthBar(target, damage);
     }
 
-    void UpdateFixedCustomeGrid(Vec2i mouseLocation, int[,] targettiles, int range)
+    void UpdateGenericAttackGrid(Actor_Unit target, int damage = 0)
     {
-        MovementGrid.ClearAllTiles();
+        MovementGrid.SetTile(new Vector3Int(target.Position.x, target.Position.y, 0), MovementGridTileTypes[1]);
+        if (damage != 0)
+            target.UnitSprite.ShowDamagedHealthBar(target, damage);
+    }
 
+    void UpdateGenericAttackFailGrid(Actor_Unit target)
+    {
+        MovementGrid.SetTile(new Vector3Int(target.Position.x, target.Position.y, 0), MovementGridTileTypes[0]);
+    }
+
+    void UpdateFixedCustomGrid(Vec2i mouseLocation, int[,] targettiles, int range)
+    {
         int radius = CurrentSpell.AreaOfEffect;
         bool outOfRange = mouseLocation.GetNumberOfMovesDistance(SelectedUnit.Position) > CurrentSpell.Range.Max;
 
         foreach (Vec2 tile_pos in TacticalUtilities.TilesOnPattern(mouseLocation, targettiles, (int)((Math.Sqrt(targettiles.Length) / 2) - 0.5)))
         {
-            if (mouseLocation.GetNumberOfMovesDistance(new Vec2i(mouseLocation.x, mouseLocation.y)) <= range)
-            {
                 if (outOfRange)
                     MovementGrid.SetTile(new Vector3Int(tile_pos.x, tile_pos.y, 0), MovementGridTileTypes[0]);
                 else
                     MovementGrid.SetTile(new Vector3Int(tile_pos.x, tile_pos.y, 0), MovementGridTileTypes[1]);
-            }
         }
     }
 
-    void UpdateRotatingCustomeGrid(Vec2i mouseLocation, int[,] targettiles, int range)
+    void UpdateRotatingCustomGrid(Vec2i mouseLocation, int[,] targettiles, int range)
     {
-        MovementGrid.ClearAllTiles();
-
         int radius = CurrentSpell.AreaOfEffect;
         bool outOfRange = mouseLocation.GetNumberOfMovesDistance(SelectedUnit.Position) > CurrentSpell.Range.Max;
 
         foreach (Vec2 tile_pos in TacticalUtilities.rotateTilePattern(mouseLocation, targettiles, (int)((Math.Sqrt(targettiles.Length) / 2) - 0.5), TacticalUtilities.GetRotatingOctant(SelectedUnit.Position, mouseLocation)))
         {
-            if (mouseLocation.GetNumberOfMovesDistance(new Vec2i(mouseLocation.x, mouseLocation.y)) <= range)
-            {
                 if (outOfRange)
                     MovementGrid.SetTile(new Vector3Int(tile_pos.x, tile_pos.y, 0), MovementGridTileTypes[0]);
                 else
                     MovementGrid.SetTile(new Vector3Int(tile_pos.x, tile_pos.y, 0), MovementGridTileTypes[1]);
-            }
         }
     }
 
@@ -3592,8 +3580,8 @@ public class TacticalMode : SceneBase
         bool refreshed = false;
 
         List<string> ClothesFound = new List<string>();
+        MovementGrid.ClearAllTiles();
         CheckPath(mouseLocation);
-
         for (int i = 0; i < units.Count; i++)
         {
             Actor_Unit actor = units[i];
@@ -3603,7 +3591,7 @@ public class TacticalMode : SceneBase
                 if (remainingLockedPanelTime <= 0)
                     InfoPanel.RefreshTacticalUnitInfo(actor);
 
-                if (!TacticalUtilities.IsUnitControlledByPlayer(actor.Unit) && SelectedUnit != null && SelectedUnit.Targetable)
+                if (SelectedUnit != null && (Config.AllowInfighting || TacticalUtilities.TreatAsHostile(actor,SelectedUnit)) && SelectedUnit.Targetable)
                 {
                     //write chance
                     switch (ActionMode)
@@ -3612,21 +3600,26 @@ public class TacticalMode : SceneBase
                             if (actor.Position.GetNumberOfMovesDistance(SelectedUnit.Position) < 2)
                             {
                                 int weaponDamage = SelectedUnit.WeaponDamageAgainstTarget(actor, false);
-                                string str = System.Math.Round(actor.GetAttackChance(SelectedUnit, false) * 100, 1) + "%\n-" + weaponDamage;
+                                string str = System.Math.Round(actor.GetAttackChance(SelectedUnit, false) * 100, 1) +
+                                             "%\n-" + weaponDamage;
                                 StatusUI.HitRate.text = str;
-                                actor.UnitSprite.ShowDamagedHealthBar(actor, weaponDamage);
+                                UpdateGenericAttackGrid(actor, weaponDamage);
                             }
+
                             break;
                         case 2:
                             if (SelectedUnit.BestRanged.Range > 1
-                                    && actor.Position.GetNumberOfMovesDistance(SelectedUnit.Position) > 1
-                                    && actor.Position.GetNumberOfMovesDistance(SelectedUnit.Position) <= SelectedUnit.BestRanged.Range)
+                                && actor.Position.GetNumberOfMovesDistance(SelectedUnit.Position) > 1
+                                && actor.Position.GetNumberOfMovesDistance(SelectedUnit.Position) <=
+                                SelectedUnit.BestRanged.Range)
                             {
                                 int weaponDamage = SelectedUnit.WeaponDamageAgainstTarget(actor, true);
-                                string str = System.Math.Round(actor.GetAttackChance(SelectedUnit, true) * 100, 1) + "%\n-" + weaponDamage;
+                                string str = System.Math.Round(actor.GetAttackChance(SelectedUnit, true) * 100, 1) +
+                                             "%\n-" + weaponDamage;
                                 StatusUI.HitRate.text = str;
-                                actor.UnitSprite.ShowDamagedHealthBar(actor, weaponDamage);
+                                UpdateGenericAttackGrid(actor, weaponDamage);
                             }
+
                             break;
                         case 3:
                             if (actor.Position.GetNumberOfMovesDistance(SelectedUnit.Position) < 2)
@@ -3635,9 +3628,13 @@ public class TacticalMode : SceneBase
                                 {
                                     string str = System.Math.Round(actor.GetDevourChance(SelectedUnit) * 100, 1) + "%";
                                     StatusUI.HitRate.text = str;
+                                    UpdateGenericAttackGrid(actor);
                                 }
                                 else
+                                {
                                     StatusUI.HitRate.text = "Not enough room";
+                                    UpdateGenericAttackFailGrid(actor);
+                                }
                             }
                             break;
                         case 4:
@@ -3647,9 +3644,13 @@ public class TacticalMode : SceneBase
                                 {
                                     string str = System.Math.Round(actor.GetDevourChance(SelectedUnit) * 100, 1) + "%";
                                     StatusUI.HitRate.text = str;
+                                    UpdateGenericAttackGrid(actor);
                                 }
                                 else
+                                {
                                     StatusUI.HitRate.text = "Not enough room";
+                                    UpdateGenericAttackFailGrid(actor);
+                                }
                             }
                             else if (specialType == SpecialAction.PounceMelee)
                             {
@@ -3658,15 +3659,16 @@ public class TacticalMode : SceneBase
                                     weaponDamage = (int)Mathf.Min((weaponDamage + ((weaponDamage * SelectedUnit.PredatorComponent?.Fullness ?? 0) / 4)), weaponDamage * 2);
                                 string str = System.Math.Round(actor.GetAttackChance(SelectedUnit, false) * 100, 1) + "%\n-" + weaponDamage;
                                 StatusUI.HitRate.text = str;
-                                actor.UnitSprite.ShowDamagedHealthBar(actor, weaponDamage);
+                                UpdateGenericAttackGrid(actor, weaponDamage);
                             }
                             if (specialType == SpecialAction.TailStrike)
                             {
-                                UpdateTailStrikeGrid(mouseLocation);
+                                int[,] targetGrid = { { 1, 1, 1 }, { 0, 0, 0 }, { 0, 0, 0 } };
+                                UpdateMeleeDirectionalGrid(mouseLocation, targetGrid, SelectedUnit.WeaponDamageAgainstTarget(actor, false, .66f));
                             }
                             if (specialType == SpecialAction.DireInfection)
                             {
-                                UpdateOTargetGrid(mouseLocation);
+                                UpdateMeleeAOEGrid(SelectedUnit.WeaponDamageAgainstTarget(actor, false, .75f));
                             }
                             break;
                     }
@@ -3715,9 +3717,9 @@ public class TacticalMode : SceneBase
         if (ActionMode == 6)
         {
             if (CurrentSpell?.AOEType == AreaOfEffectType.FixedPattern)
-                UpdateFixedCustomeGrid(mouseLocation, CurrentSpell?.Pattern, SelectedUnit.Position.GetNumberOfMovesDistance(mouseLocation.x, mouseLocation.y));
-            if (CurrentSpell?.AOEType == AreaOfEffectType.RotatablePattern)
-                UpdateRotatingCustomeGrid(mouseLocation, CurrentSpell?.Pattern, SelectedUnit.Position.GetNumberOfMovesDistance(mouseLocation.x, mouseLocation.y));
+                UpdateFixedCustomGrid(mouseLocation, CurrentSpell?.Pattern, SelectedUnit.Position.GetNumberOfMovesDistance(mouseLocation));
+            else if (CurrentSpell?.AOEType == AreaOfEffectType.RotatablePattern)
+                UpdateRotatingCustomGrid(mouseLocation, CurrentSpell?.Pattern, SelectedUnit.Position.GetNumberOfMovesDistance(mouseLocation));
             else if (CurrentSpell?.AreaOfEffect > 0)
                 UpdateAreaOfEffectGrid(mouseLocation);
 
@@ -3737,7 +3739,7 @@ public class TacticalMode : SceneBase
                                 {
                                     spellDamage *= 3;
                                 }
-                                actor.UnitSprite.ShowDamagedHealthBar(actor, spellDamage);
+                                UpdateGenericAttackGrid(actor, spellDamage);
                                 string str = System.Math.Round(actor.GetMagicChance(SelectedUnit, CurrentSpell) * 100, 1) + "%\n-" + spellDamage;
                                 StatusUI.HitRate.text = str;
                             }
@@ -3777,7 +3779,7 @@ public class TacticalMode : SceneBase
                         {
                             spellDamage *= 3;
                         }
-                        splashTarget.UnitSprite.ShowDamagedHealthBar(splashTarget, spellDamage);
+                        UpdateGenericAttackGrid(splashTarget, spellDamage);
                     }
                 }
             }
@@ -3796,7 +3798,11 @@ public class TacticalMode : SceneBase
             return;
 
         if (currentPathDestination != null && mouseLocation.Matches(currentPathDestination))
+        {
+            UpdateMovementGrid();
+            UpdateAttackGrid(mouseLocation);
             return;
+        }
         if (TacticalUtilities.OpenTile(mouseLocation, SelectedUnit) == false)
             return;
         currentPathDestination = mouseLocation;
