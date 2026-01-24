@@ -528,14 +528,13 @@ public abstract class TacticalAI : ITacticalAI
         return -1;
     }
 
-    protected virtual void RunBellyRub(Actor_Unit actor, int spareAP)
+    protected virtual void RunBellyRub(Actor_Unit actor, int spareAP, bool spendFinalAP = false)
     {
         int cost = actor.MaxMovement() / 3;
-        List<PotentialTarget> targets = GetListOfPotentialRubTargets(actor, actor.Position, spareAP);
+        List<PotentialTarget> targets = GetListOfPotentialRubTargets(actor, actor.Position, spareAP, spendFinalAP);
 
         if (!targets.Any())
         {
-            
             return;
         }
 
@@ -559,6 +558,11 @@ public abstract class TacticalAI : ITacticalAI
                 //spareAP -= cost;
                 //targets.RemoveAt(0);
                 //break;
+            }
+            else if (spendFinalAP)
+            {
+                MoveToAndAction(actor, targets[0].actor.Position, 1, spareAP, () => actor.BellyRub(targets[0].actor));
+                return;
             }
             else
             {
@@ -584,7 +588,7 @@ public abstract class TacticalAI : ITacticalAI
         //}
     }
 
-    protected virtual List<PotentialTarget> GetListOfPotentialRubTargets(Actor_Unit actor, Vec2i position, int moves)
+    protected virtual List<PotentialTarget> GetListOfPotentialRubTargets(Actor_Unit actor, Vec2i position, int moves, bool spendFinalAP = false)
     {
         List<PotentialTarget> targets = new List<PotentialTarget>();
 
@@ -593,7 +597,8 @@ public abstract class TacticalAI : ITacticalAI
             if (unit.Targetable == true && unit.Unit.Predator && !TacticalUtilities.TreatAsHostile(actor, unit) && TacticalUtilities.GetMindControlSide(unit.Unit) == -1 && !unit.Surrendered && unit.PredatorComponent?.PreyCount > 0 && !unit.ReceivedRub) // includes self
             {
                 int distance = unit.Position.GetNumberOfMovesDistance(position);
-                if (distance - 1 + (actor.MaxMovement() / 3) <= moves)
+                if (distance + (actor.MaxMovement() / 3) <= moves
+                    || (spendFinalAP && distance <= moves))
                 {
                     if (distance > 1 && TacticalUtilities.FreeSpaceAroundTarget(unit.Position, actor) == false)
                         continue;

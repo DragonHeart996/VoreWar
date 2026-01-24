@@ -60,7 +60,7 @@ public class NonCombatantTacticalAI : RaceServantTacticalAI
         if (path != null)
             return;
 
-        RunBellyRub(actor, actor.Movement);
+        RunBellyRub(actor, actor.Movement, true);
         if (foundPath || didAction) return;
         //Search for surrendered targets outside of vore range
         //If no path to any targets, will sit out its turn
